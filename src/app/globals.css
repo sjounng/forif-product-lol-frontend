@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ==========================================================================
+   디자인 토큰
+   - 이 파일이 색·타이포의 유일한 소스다. 컴포넌트에서 하드코딩된 hex 쓰지 말 것.
+   - BLUE/RED 는 장식이 아니라 "진영"이라는 데이터다. 팀 표시 외에는 쓰지 않는다.
+   - GOLD 는 유일한 UI 강조색(주요 액션 · 점수).
+   ========================================================================== */
+@theme {
+  /* 배경 계층 */
+  --color-bg: #0e1420;
+  --color-surface: #151d2c;
+  --color-raised: #1c2637;
+  --color-line: #26314a;
+  --color-line-soft: #1e2739;
+
+  /* 텍스트 계층 */
+  --color-text: #e6ecf5;
+  --color-muted: #8593ab;
+  --color-dim: #5c6880;
+
+  /* 진영 (데이터 인코딩) */
+  --color-blue: #4c8dff;
+  --color-blue-dim: #1e3a6b;
+  --color-red: #ff5f6b;
+  --color-red-dim: #6b2029;
+
+  /* 의미색 */
+  --color-gold: #e9b44c;
+  --color-gain: #46c08a;
+  --color-loss: #e5606d;
+
+  --font-sans: var(--font-plex-kr), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --radius-card: 10px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 점수·티어·전적은 전부 자릿수 정렬되어야 읽힌다 */
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* 섹션 위 작은 라벨. 대문자 모노 + 넓은 자간 = 계기판 눈금 톤 */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-dim);
+  }
 }
