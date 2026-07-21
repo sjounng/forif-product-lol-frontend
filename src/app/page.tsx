@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { NavBar } from "@/components/layout/NavBar";
 import { BalanceBeam } from "@/components/session/BalanceBeam";
@@ -27,17 +28,34 @@ export default function HomePage() {
       <NavBar />
 
       <main>
+        {/* 마스트헤드 — 첫 화면에서 "이건 롤 내전 서비스다"를 즉시 각인시킨다 */}
+        <section className="border-b border-line/60 bg-surface/40">
+          <div className="mx-auto flex max-w-6xl flex-col items-center px-6 py-16 text-center sm:py-20">
+            <Image
+              src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/9eb028de391e65072d06e77f06d0955f66b9fa2c-736x316.png?accountingTag=LoL&auto=format&fit=fill&q=80&w=736"
+              alt="League of Legends"
+              width={368}
+              height={158}
+              className="h-auto w-64 sm:w-80"
+              priority
+            />
+            <p className="mt-6 text-3xl font-extrabold tracking-tight text-text sm:text-4xl">
+              롤 내전 서비스
+            </p>
+          </div>
+        </section>
+
         {/* 히어로 — 이 제품이 하는 일을 말이 아니라 실물로 보여준다 */}
         <section className="mx-auto max-w-6xl px-6 pb-16 pt-16 sm:pt-24">
           <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
             <div>
               <p className="eyebrow mb-4">리그 오브 레전드 내전 운영</p>
-              <h1 className="text-3xl font-semibold leading-[1.25] tracking-tight sm:text-4xl">
+              <h1 className="text-4xl font-extrabold leading-[1.25] tracking-tight sm:text-5xl">
                 내전에서 제일 어려운 건
                 <br />
                 팀 나누기입니다
               </h1>
-              <p className="mt-5 max-w-md text-[15px] leading-relaxed text-muted">
+              <p className="mt-5 max-w-md text-lg leading-relaxed text-muted">
                 솔랭 티어로 시작 점수를 매기고, 라인 선호까지 맞춰서 10명을 두
                 팀으로 나눕니다. 경기가 쌓이면 점수는 이 그룹에서의 실제 실력으로
                 수렴합니다.
@@ -52,7 +70,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <p className="mt-4 text-xs text-dim">
+              <p className="mt-4 text-sm text-dim">
                 참가자는 계정이 필요 없습니다. 방장이 준 링크와 코드로 바로
                 들어옵니다.
               </p>
@@ -74,24 +92,24 @@ export default function HomePage() {
         {/* 3단 스코프 — 이 제품의 멘탈 모델이자 실제 데이터 계층 */}
         <section className="border-t border-line">
           <div className="mx-auto max-w-6xl px-6 py-16">
-            <p className="eyebrow mb-3">구조</p>
-            <h2 className="mb-10 text-xl font-semibold tracking-tight">
+            <p className="eyebrow mb-3">무엇을 제공하나요</p>
+            <h2 className="mb-10 text-2xl font-extrabold tracking-tight">
               그룹 안에 회차가, 회차 안에 경기가 있습니다
             </h2>
 
             <div className="grid gap-px overflow-hidden rounded-[10px] border border-line bg-line sm:grid-cols-3">
               <div className="bg-surface p-6">
                 <p className="eyebrow mb-3">그룹</p>
-                <p className="text-sm font-medium">사람이 모이는 단위</p>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                <p className="text-base font-bold">사람이 모이는 단위</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
                   명단과 점수, 전적이 여기에 계속 쌓입니다. 인원 제한은 없습니다.
                 </p>
               </div>
 
               <div className="bg-surface p-6">
                 <p className="eyebrow mb-3">회차</p>
-                <p className="text-sm font-medium">하루치 내전</p>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                <p className="text-base font-bold">하루치 내전</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
                   피어리스 챔피언 풀이 유지되는 범위입니다. 10명이 넘으면 돌아가며
                   뜁니다.
                 </p>
@@ -99,8 +117,8 @@ export default function HomePage() {
 
               <div className="bg-surface p-6">
                 <p className="eyebrow mb-3">경기</p>
-                <p className="text-sm font-medium">한 게임</p>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                <p className="text-base font-bold">한 게임</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
                   밴픽과 결과, 점수 변동이 남습니다. 정확히 10명입니다.
                 </p>
               </div>
