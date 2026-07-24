@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -26,7 +26,7 @@ export function NavBar() {
   const { user, isLoggedIn } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-bg/90 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-line bg-black">
       <div className="mx-auto flex h-20 max-w-6xl items-center px-6">
         {/* 왼쪽 — 로고 */}
         <Link
@@ -34,8 +34,8 @@ export function NavBar() {
           className="flex shrink-0 items-center gap-3"
           aria-label="내전 콘솔 홈"
         >
-          <Logo className="h-8 w-8 text-text" />
-          <span className="text-xl font-bold tracking-tight">내전 콘솔</span>
+          <Image src="/foxBlue.svg" alt="" width={38} height={36} className="h-9 w-auto" priority />
+          <span className="text-xl font-bold tracking-tight text-white">내전 콘솔</span>
         </Link>
 
         {/* 가운데 — 그룹 · 티어 */}
@@ -49,8 +49,8 @@ export function NavBar() {
                 aria-current={active ? "page" : undefined}
                 className={`rounded-md px-4 py-2 text-base transition-colors ${
                   active
-                    ? "bg-raised font-bold text-text"
-                    : "font-medium text-muted hover:bg-raised/60 hover:text-text"
+                    ? "bg-white/15 font-bold text-white"
+                    : "font-medium text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {item.label}
@@ -63,11 +63,11 @@ export function NavBar() {
         <div className="flex shrink-0 items-center gap-4">
           {isLoggedIn ? (
             <>
-              <span className="hidden text-base text-muted sm:inline">
+              <span className="hidden text-base text-white/80 sm:inline">
                 {user?.displayName}
               </span>
               {/* TODO(A): onClick → logout() 후 "/" 로 */}
-              <Button size="md" variant="ghost">
+              <Button size="md" variant="ghost" className="!text-white hover:!bg-white/10">
                 로그아웃
               </Button>
             </>
