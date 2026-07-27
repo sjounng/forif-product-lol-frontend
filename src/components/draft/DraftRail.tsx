@@ -1,83 +1,119 @@
-import type { Champion, DraftStep, Side } from "@/types";
+import { LANE_LABEL } from "@/lib/constants";
+import type { Lane, Side } from "@/types";
 
-/**
- * 한 팀의 밴/픽 슬롯. 진행 중인 스텝은 테두리가 살아 있다.
- *
- * TODO(A): 확정 전 호버(draft_hovers)를 반투명으로 겹쳐 보여준다.
- *          상대가 뭘 만지작거리는지 보이는 게 밴픽의 재미이자 정보다.
- */
+export type PickSlot = {
+  lane: Lane;
+  player: string;
+  champion: string;
+  mark: string;
+};
+
+export type LockedChampion = {
+  id: number;
+  name: string;
+  mark: string;
+  setNo: number;
+  source: "PREVIOUS_PICK" | "CURRENT_BAN";
+};
+
+function ChampionPortrait({ mark }: { mark: string }) {
+  return (
+    <span className="relative grid size-full place-items-center overflow-hidden bg-gradient-to-br from-raised via-surface to-bg">
+      <span className="absolute size-2/3 rotate-45 border border-line" />
+      <span className="tabular relative text-xl font-semibold text-text">{mark}</span>
+    </span>
+  );
+}
+
 export function DraftRail({
   side,
-  steps,
-  champions,
-  currentStep,
+  teamName,
+  picks,
+  lockedChampions,
+  activePickIndex,
 }: {
   side: Side;
-  steps: DraftStep[];
-  champions: Champion[];
-  currentStep: number;
+  teamName: string;
+  picks: PickSlot[];
+  lockedChampions: LockedChampion[];
+  activePickIndex: number | null;
 }) {
-  const mySteps = steps.filter((s) => s.side === side);
-  const picks = mySteps.filter((s) => s.actionType === "PICK");
-  const bans = mySteps.filter((s) => s.actionType === "BAN");
-
-  const nameOf = (championId: number | null) =>
-    championId ? champions.find((c) => c.id === championId)?.nameKo : null;
-
-  const accent = side === "BLUE" ? "border-blue" : "border-red";
-  const accentText = side === "BLUE" ? "text-blue" : "text-red";
+  const isBlue = side === "BLUE";
+  const sideText = isBlue ? "text-blue" : "text-red";
+  const sideBorder = isBlue ? "border-blue" : "border-red";
+  const activeBg = isBlue ? "bg-blue-dim/25" : "bg-red-dim/25";
 
   return (
-    <div className="w-full sm:w-44">
-      <p className={`eyebrow mb-3 ${accentText}`}>{side}</p>
+    <aside
+      className={`flex min-h-0 flex-col border-line bg-surface/70 ${
+        isBlue ? "border-r" : "border-l"
+      }`}
+      aria-label={`${side} 팀 픽`}
+    >
+      <div className={`flex h-12 shrink-0 items-center gap-3 border-b border-line px-4 ${sideText}`}>
+        <span className={`tabular border px-2 py-1 text-[10px] font-semibold ${sideBorder}`}>
+          {side}
+        </span>
+        <strong className="truncate text-sm text-text">{teamName}</strong>
+      </div>
 
-      {/* 픽 */}
-      <ul className="space-y-1.5">
-        {picks.map((step) => {
-          const name = nameOf(step.championId);
-          const active = step.stepNo === currentStep;
+      <ol className="grid min-h-0 flex-1 grid-rows-5 gap-2 p-3">
+        {picks.map((pick, index) => {
+          const active = activePickIndex === index;
           return (
             <li
-              key={step.stepNo}
-              className={`flex h-12 items-center rounded-md border px-3 ${
-                active
-                  ? `${accent} bg-raised`
-                  : name
-                    ? "border-line bg-surface"
-                    : "border-line-soft bg-surface/40"
-              }`}
+              key={pick.lane}
+              className={`grid min-h-0 items-center overflow-hidden border border-line bg-bg/50 ${
+                isBlue ? "grid-cols-[74px_1fr_24px]" : "grid-cols-[24px_1fr_74px]"
+              } ${active ? `${sideBorder} ${activeBg}` : ""}`}
             >
-              <span className={`text-[13px] ${name ? "" : "text-dim"}`}>
-                {name ?? (active ? "선택 중…" : "—")}
-              </span>
+              {isBlue ? (
+                <>
+                  <ChampionPortrait mark={pick.mark} />
+                  <PickDetails pick={pick} align="left" />
+                  <span className="tabular text-center text-[10px] text-dim">{index + 1}</span>
+                </>
+              ) : (
+                <>
+                  <span className="tabular text-center text-[10px] text-dim">{index + 1}</span>
+                  <PickDetails pick={pick} align="right" />
+                  <ChampionPortrait mark={pick.mark} />
+                </>
+              )}
             </li>
           );
         })}
-      </ul>
+      </ol>
 
-      {/* 밴 */}
-      <p className="eyebrow mb-2 mt-4">밴</p>
-      <ul className="flex gap-1.5">
-        {bans.map((step) => {
-          const name = nameOf(step.championId);
-          const active = step.stepNo === currentStep;
-          return (
-            <li
-              key={step.stepNo}
-              title={name ?? undefined}
-              className={`flex h-9 flex-1 items-center justify-center rounded border text-[10px] ${
-                active
-                  ? `${accent} bg-raised`
-                  : name
-                    ? "border-line bg-surface text-dim line-through"
-                    : "border-line-soft bg-surface/40 text-dim/40"
-              }`}
-            >
-              {name ? name.slice(0, 3) : "—"}
+      <div className="shrink-0 border-t border-line p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="eyebrow">LOCKED</span>
+          <span className="tabular text-[9px] text-dim">{lockedChampions.length}</span>
+        </div>
+        <ul className="grid grid-cols-5 gap-1.5">
+          {lockedChampions.map((champion) => (
+            <li key={`${champion.source}-${champion.id}`} className="min-w-0" title={`${champion.name} · SET ${champion.setNo}`}>
+              <div className="aspect-square overflow-hidden border border-line-soft opacity-55 grayscale">
+                <ChampionPortrait mark={champion.mark} />
+              </div>
+              <p className="tabular mt-1 truncate text-center text-[7px] text-dim">
+                {champion.source === "CURRENT_BAN" ? "BAN" : `SET ${champion.setNo}`}
+              </p>
             </li>
-          );
-        })}
-      </ul>
+          ))}
+        </ul>
+      </div>
+    </aside>
+  );
+}
+
+function PickDetails({ pick, align }: { pick: PickSlot; align: "left" | "right" }) {
+  return (
+    <div className={`min-w-0 px-3 ${align === "right" ? "text-right" : ""}`}>
+      <small className="text-[9px] tracking-wide text-muted">
+        {LANE_LABEL[pick.lane]} · {pick.player}
+      </small>
+      <strong className="mt-1 block truncate text-[13px] text-text">{pick.champion}</strong>
     </div>
   );
 }
