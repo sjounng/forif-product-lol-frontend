@@ -20,7 +20,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "내전 콘솔",
+  title: "내전하냥",
   description: "리그 오브 레전드 내전 운영 도구 — 명단, 점수, 팀 밸런싱, 밴픽",
 };
 

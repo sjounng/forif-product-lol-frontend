@@ -32,10 +32,10 @@ export function NavBar() {
         <Link
           href="/"
           className="flex shrink-0 items-center gap-3"
-          aria-label="내전 콘솔 홈"
+          aria-label="내전하냥 홈"
         >
           <Image src="/foxBlue.svg" alt="" width={38} height={36} className="h-9 w-auto" priority />
-          <span className="text-xl font-bold tracking-tight text-white">내전 콘솔</span>
+          <span className="text-xl font-bold tracking-tight text-white">내전하냥</span>
         </Link>
 
         {/* 가운데 — 그룹 · 티어 */}
