@@ -45,6 +45,8 @@ const RED_LOCKED: LockedChampion[] = [
   { id: 62, name: "오공", mark: "WK", setNo: 2, source: "CURRENT_BAN" },
 ];
 
+// TODO(mock): 챔피언 역할/약자는 Data Dragon 동기화된 champions 테이블에서 받아온다.
+//             API 연동 시 아래 하드코딩 맵 두 개를 제거하고, 서버가 role 데이터도 함께 내려줘야 한다.
 const CHAMPION_ROLES: Partial<Record<number, Lane[]>> = {
   266: ["TOP"], 103: ["MID"], 84: ["MID", "TOP"], 12: ["SUPPORT"],
   32: ["JUNGLE"], 34: ["MID"], 1: ["MID"], 22: ["ADC"],
