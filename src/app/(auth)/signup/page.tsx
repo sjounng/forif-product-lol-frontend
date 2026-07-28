@@ -15,7 +15,7 @@ export default function SignupPage() {
   return (
     <>
       <div className="mb-8">
-        <p className="eyebrow mb-2">내전 콘솔</p>
+        <p className="eyebrow mb-2">내전하냥</p>
         <h1 className="text-2xl font-semibold tracking-tight">회원가입</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">
           방장 계정을 만듭니다. 참가자는 계정 없이 입장 코드로 들어옵니다.

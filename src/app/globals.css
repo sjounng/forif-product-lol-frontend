@@ -3,21 +3,24 @@
 /* ==========================================================================
    디자인 토큰
    - 이 파일이 색·타이포의 유일한 소스다. 컴포넌트에서 하드코딩된 hex 쓰지 말 것.
+   - 브랜드 컬러 두 가지만 쓴다: 배경 = 진남색(#131824), 글자 = 헥스텍 골드(#C8AA6E).
+     아래 계층들은 전부 이 두 색의 명도 변형이다.
+   - 상단 네비게이션 바만 예외: 순검정(#000000) 배경에 흰 글자.
    - BLUE/RED 는 장식이 아니라 "진영"이라는 데이터다. 팀 표시 외에는 쓰지 않는다.
-   - GOLD 는 유일한 UI 강조색(주요 액션 · 점수).
+   - GOLD 는 유일한 UI 강조색(주요 액션 · 점수) 이자 기본 글자색.
    ========================================================================== */
 @theme {
-  /* 배경 계층 */
-  --color-bg: #0e1420;
-  --color-surface: #151d2c;
-  --color-raised: #1c2637;
-  --color-line: #26314a;
-  --color-line-soft: #1e2739;
+  /* 배경 계층 — #131824 베이스 */
+  --color-bg: #131824;
+  --color-surface: #262a36;
+  --color-raised: #363b45;
+  --color-line: #5b5242;
+  --color-line-soft: #3b3834;
 
-  /* 텍스트 계층 */
-  --color-text: #e6ecf5;
-  --color-muted: #8593ab;
-  --color-dim: #5c6880;
+  /* 텍스트 계층 — #C8AA6E 베이스 */
+  --color-text: #c8aa6e;
+  --color-muted: #a8956f;
+  --color-dim: #756a4f;
 
   /* 진영 (데이터 인코딩) */
   --color-blue: #4c8dff;
@@ -26,7 +29,7 @@
   --color-red-dim: #6b2029;
 
   /* 의미색 */
-  --color-gold: #e9b44c;
+  --color-gold: #c8aa6e;
   --color-gain: #46c08a;
   --color-loss: #e5606d;
 
@@ -40,10 +43,12 @@
   html {
     background: var(--color-bg);
     color: var(--color-text);
+    font-size: 17px;
   }
 
   body {
     font-family: var(--font-sans);
+    font-weight: 500;
     -webkit-font-smoothing: antialiased;
   }
 

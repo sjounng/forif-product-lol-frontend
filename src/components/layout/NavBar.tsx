@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -26,20 +26,20 @@ export function NavBar() {
   const { user, isLoggedIn } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-bg/85 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center px-6">
+    <header className="sticky top-0 z-50 border-b border-line bg-black">
+      <div className="mx-auto flex h-20 max-w-6xl items-center px-6">
         {/* 왼쪽 — 로고 */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5"
-          aria-label="내전 콘솔 홈"
+          className="flex shrink-0 items-center gap-3"
+          aria-label="내전하냥 홈"
         >
-          <Logo className="h-5 w-5 text-text" />
-          <span className="text-sm font-semibold tracking-tight">내전 콘솔</span>
+          <Image src="/foxBlue.svg" alt="" width={38} height={36} className="h-9 w-auto" priority />
+          <span className="text-xl font-bold tracking-tight text-white">내전하냥</span>
         </Link>
 
         {/* 가운데 — 그룹 · 티어 */}
-        <nav className="flex flex-1 items-center justify-center gap-1">
+        <nav className="flex flex-1 items-center justify-center gap-2">
           {NAV.map((item) => {
             const active = pathname.startsWith(item.match);
             return (
@@ -47,10 +47,10 @@ export function NavBar() {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`rounded-md px-3.5 py-1.5 text-[13px] transition-colors ${
+                className={`rounded-md px-4 py-2 text-base transition-colors ${
                   active
-                    ? "bg-raised font-medium text-text"
-                    : "text-muted hover:bg-raised/60 hover:text-text"
+                    ? "bg-white/15 font-bold text-white"
+                    : "font-medium text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {item.label}
@@ -60,20 +60,20 @@ export function NavBar() {
         </nav>
 
         {/* 오른쪽 — 인증 */}
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 items-center gap-4">
           {isLoggedIn ? (
             <>
-              <span className="hidden text-[13px] text-muted sm:inline">
+              <span className="hidden text-base text-white/80 sm:inline">
                 {user?.displayName}
               </span>
               {/* TODO(A): onClick → logout() 후 "/" 로 */}
-              <Button size="sm" variant="ghost">
+              <Button size="md" variant="ghost" className="!text-white hover:!bg-white/10">
                 로그아웃
               </Button>
             </>
           ) : (
             <Link href="/login">
-              <Button size="sm" variant="primary">
+              <Button size="md" variant="primary">
                 로그인
               </Button>
             </Link>

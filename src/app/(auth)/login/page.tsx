@@ -17,7 +17,7 @@ export default function LoginPage() {
   return (
     <>
       <div className="mb-8">
-        <p className="eyebrow mb-2">내전 콘솔</p>
+        <p className="eyebrow mb-2">내전하냥</p>
         <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">
           방을 만들고 관리하려면 로그인이 필요합니다. 내전에 참여만 할
