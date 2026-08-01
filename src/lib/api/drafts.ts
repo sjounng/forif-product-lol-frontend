@@ -1,44 +1,157 @@
-import type { Champion, DraftStep } from "@/types";
+import type { Champion, DraftRealtimeEvent, DraftState } from "@/types";
+import { API_BASE_URL, apiFetch, getAccessToken } from "./client";
 
 /**
- * 담당: A (MVP 이후 — 로드맵 5단계, 구현 비용 최대)
- *
- * 백엔드 미구현. REST 는 초기 상태 로드용이고 진행은 전부 WebSocket 이다.
- *   GET  /api/drafts/{draftId}        초기 상태 (재접속 복원)
- *   WS   /ws/drafts/{draftId}         HOVER / LOCK / READY / TIMEOUT ...
- *
- * 반드시 지켜야 하는 것:
- *   - 타이머는 서버 소유다. 서버가 준 turn_deadline_at 을 기준으로 남은 시간을 "표시만" 한다.
- *     클라가 카운트다운을 소유하면 시계가 어긋나 확정 시점이 팀마다 달라진다.
- *   - 좌석(draft_seats)에 앉은 사람만 확정할 수 있다. 나머지는 전원 관전자.
- *   - 재접속하면 draft_events 의 seq 이후만 받아서 화면을 복원한다.
- *   - 서버가 UNIQUE(draft_id, champion_id)로 중복 픽을 거부한다. 낙관적으로 그리되 거부되면 롤백할 것.
+ * REST는 최초 상태 조회와 WebSocket 연결 실패 시 명령 fallback에 사용한다.
+ * WebSocket은 마지막으로 처리한 seq 이후의 이벤트를 재생하며, 이벤트가 유실된 경우
+ * 서버 SNAPSHOT으로 상태를 복원한다. 변경 명령은 REST와 동일한 DraftService 규칙을 사용한다.
  */
 
-// TODO(A): apiFetch 로 구현
-export async function fetchDraft(_draftId: number): Promise<{
-  steps: DraftStep[];
-  currentStep: number;
-  turnDeadlineAt: string | null;
-  /** 피어리스로 이미 소진된 챔피언 — 그리드에서 회색 처리 */
-  bannedByFearless: number[];
-}> {
-  throw new Error("미구현: GET /api/drafts/{draftId}");
+export function fetchDraft(
+  draftId: number,
+  init: Pick<RequestInit, "signal"> = {},
+): Promise<DraftState> {
+  return apiFetch<DraftState>(`/api/drafts/${draftId}`, init);
 }
 
-// TODO(A): WebSocket 연결. 재연결 백오프 + seq 기반 복원까지 포함할 것
+export function readyDraft(
+  draftId: number,
+  expectedVersion: number,
+): Promise<DraftState> {
+  return apiFetch<DraftState>(`/api/drafts/${draftId}/ready`, {
+    method: "POST",
+    body: JSON.stringify({ expectedVersion }),
+  });
+}
+
+export function lockDraft(
+  draftId: number,
+  input: {
+    stepNo: number;
+    championId: number;
+    playerId: number | null;
+    expectedVersion: number;
+  },
+): Promise<DraftState> {
+  return apiFetch<DraftState>(`/api/drafts/${draftId}/locks`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function assignDraftChampion(
+  draftId: number,
+  input: {
+    playerId: number;
+    championId: number;
+    expectedVersion: number;
+  },
+): Promise<DraftState> {
+  return apiFetch<DraftState>(`/api/drafts/${draftId}/assignments`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+}
+
+export function confirmDraftAssignment(
+  draftId: number,
+  expectedVersion: number,
+): Promise<DraftState> {
+  return apiFetch<DraftState>(
+    `/api/drafts/${draftId}/assignments/confirm`,
+    {
+      method: "POST",
+      body: JSON.stringify({ expectedVersion }),
+    },
+  );
+}
+
+export function hoverDraft(
+  draftId: number,
+  input: {
+    stepNo: number;
+    championId: number | null;
+    expectedVersion: number;
+  },
+): Promise<DraftState> {
+  return apiFetch<DraftState>(`/api/drafts/${draftId}/hover`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export type DraftSocketCommand =
+  | { type: "READY"; expectedVersion: number }
+  | {
+      type: "HOVER";
+      stepNo: number;
+      championId: number | null;
+      expectedVersion: number;
+    }
+  | {
+      type: "LOCK";
+      stepNo: number;
+      championId: number;
+      playerId: number | null;
+      expectedVersion: number;
+    }
+  | {
+      type: "ASSIGN_CHAMPION" | "SWAP_CHAMPIONS";
+      playerId: number;
+      championId: number;
+      expectedVersion: number;
+    }
+  | { type: "CONFIRM_ASSIGNMENT"; expectedVersion: number };
+
 export function connectDraftSocket(
-  _draftId: number,
-  _handlers: { onEvent: (event: unknown) => void; onClose: () => void },
-): { send: (payload: unknown) => void; close: () => void } {
-  throw new Error("미구현: WS /ws/drafts/{draftId}");
+  draftId: number,
+  lastSeq: number,
+  handlers: {
+    onOpen?: () => void;
+    onEvent: (event: DraftRealtimeEvent) => void;
+    onClose: () => void;
+  },
+): { send: (command: DraftSocketCommand) => boolean; close: () => void } {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("실시간 Draft 연결에 필요한 인증 정보가 없습니다.");
+  }
+  const baseUrl =
+    process.env.NEXT_PUBLIC_WS_BASE_URL ??
+    API_BASE_URL.replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+  const url = new URL(`/ws/drafts/${draftId}`, baseUrl);
+  url.searchParams.set("accessToken", accessToken);
+  url.searchParams.set("lastSeq", String(lastSeq));
+  const socket = new WebSocket(url);
+
+  socket.addEventListener("open", () => handlers.onOpen?.());
+  socket.addEventListener("message", (message) => {
+    try {
+      handlers.onEvent(JSON.parse(String(message.data)) as DraftRealtimeEvent);
+    } catch {
+      // 손상된 단일 메시지는 무시하고 다음 seq gap에서 Snapshot을 복구한다.
+    }
+  });
+  socket.addEventListener("close", handlers.onClose);
+
+  return {
+    send(command) {
+      if (socket.readyState !== WebSocket.OPEN) return false;
+      socket.send(JSON.stringify(command));
+      return true;
+    },
+    close() {
+      socket.close(1000, "Draft page closed");
+    },
+  };
 }
 
 /**
  * 챔피언 목록은 Riot API가 아니라 Data Dragon(공개, 키 불필요)에서 온다.
  * 백엔드 champions 테이블을 채운 뒤 거기서 받아오는 게 맞다 — 패치마다 바뀌므로.
  */
-// TODO(공통): apiFetch 로 구현
-export async function fetchChampions(): Promise<Champion[]> {
-  throw new Error("미구현: GET /api/champions");
+export async function fetchChampions(
+  init: Pick<RequestInit, "signal"> = {},
+): Promise<Champion[]> {
+  return apiFetch<Champion[]>("/api/champions", init);
 }

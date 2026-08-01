@@ -1,11 +1,8 @@
 import type {
   BalanceCandidate,
-  Champion,
-  DraftStep,
   Match,
   Player,
   Room,
-  ScrimSession,
   SessionPlayer,
   User,
 } from "@/types";
@@ -34,10 +31,16 @@ export const mockRooms: Room[] = [
     name: "포리프 정기 내전",
     description: "매주 목요일 밤 9시",
     publicCode: "K7QM2XPA",
-    guestCanDraft: true,
-    playerCount: 24,
+    guestAdmissionEnabled: true,
+    entryPasswordProtected: true,
+    participantCount: 24,
     sessionCount: 12,
+    matchCount: 43,
     status: "ACTIVE",
+    owner: { id: 1, displayName: "방장", avatarUrl: null },
+    opponentCaptain: { id: 2, displayName: "상대 팀장", avatarUrl: null },
+    captainInvitationStatus: "ACCEPTED",
+    myRole: "GROUP_OWNER",
     createdAt: "2026-04-02",
   },
   {
@@ -45,10 +48,16 @@ export const mockRooms: Room[] = [
     name: "주말 빡겜방",
     description: "피어리스 전용",
     publicCode: "B3VN9WLD",
-    guestCanDraft: false,
-    playerCount: 15,
+    guestAdmissionEnabled: false,
+    entryPasswordProtected: false,
+    participantCount: 15,
     sessionCount: 4,
+    matchCount: 11,
     status: "ACTIVE",
+    owner: { id: 1, displayName: "방장", avatarUrl: null },
+    opponentCaptain: null,
+    captainInvitationStatus: "PENDING",
+    myRole: "GROUP_OWNER",
     createdAt: "2026-06-18",
   },
 ];
@@ -164,24 +173,6 @@ export const mockPlayers: Player[] = [
   },
 ];
 
-export const mockSessions: ScrimSession[] = [
-  {
-    id: 41, name: "7/21 정기 내전", fearlessMode: "GLOBAL_FEARLESS",
-    status: "IN_PROGRESS", ratingEnabled: true, gameCount: 2, playerCount: 12,
-    createdAt: "2026-07-21",
-  },
-  {
-    id: 40, name: "7/14 정기 내전", fearlessMode: "FEARLESS",
-    status: "FINISHED", ratingEnabled: true, gameCount: 4, playerCount: 11,
-    createdAt: "2026-07-14",
-  },
-  {
-    id: 39, name: "7/7 친선전", fearlessMode: "NONE",
-    status: "FINISHED", ratingEnabled: false, gameCount: 3, playerCount: 10,
-    createdAt: "2026-07-07",
-  },
-];
-
 /**
  * 12명 참가 = 매 게임 2명이 쉰다.
  * 배열 순서 = 서버가 주는 투입 순번 그대로다 (games_played ASC → bench_priority DESC
@@ -243,70 +234,3 @@ export const mockMatches: Match[] = [
   { id: 902, gameNo: 2, status: "COMPLETED", winnerSide: "RED", blueTotal: 9088, redTotal: 9146, durationSec: 2114, endedAt: "22:38" },
   { id: 901, gameNo: 1, status: "COMPLETED", winnerSide: "BLUE", blueTotal: 8840, redTotal: 8912, durationSec: 1876, endedAt: "21:52" },
 ];
-
-/** 밴픽 그리드용. 실제로는 Data Dragon 에서 160여 개가 온다 */
-export const mockChampions: Champion[] = [
-  { id: 266, riotId: "Aatrox", nameKo: "아트록스", imageUrl: null },
-  { id: 103, riotId: "Ahri", nameKo: "아리", imageUrl: null },
-  { id: 84, riotId: "Akali", nameKo: "아칼리", imageUrl: null },
-  { id: 12, riotId: "Alistar", nameKo: "알리스타", imageUrl: null },
-  { id: 32, riotId: "Amumu", nameKo: "아무무", imageUrl: null },
-  { id: 34, riotId: "Anivia", nameKo: "애니비아", imageUrl: null },
-  { id: 1, riotId: "Annie", nameKo: "애니", imageUrl: null },
-  { id: 22, riotId: "Ashe", nameKo: "애쉬", imageUrl: null },
-  { id: 136, riotId: "AurelionSol", nameKo: "아우렐리온 솔", imageUrl: null },
-  { id: 268, riotId: "Azir", nameKo: "아지르", imageUrl: null },
-  { id: 432, riotId: "Bard", nameKo: "바드", imageUrl: null },
-  { id: 53, riotId: "Blitzcrank", nameKo: "블리츠크랭크", imageUrl: null },
-  { id: 63, riotId: "Brand", nameKo: "브랜드", imageUrl: null },
-  { id: 201, riotId: "Braum", nameKo: "브라움", imageUrl: null },
-  { id: 51, riotId: "Caitlyn", nameKo: "케이틀린", imageUrl: null },
-  { id: 164, riotId: "Camille", nameKo: "카밀", imageUrl: null },
-  { id: 69, riotId: "Cassiopeia", nameKo: "카시오페아", imageUrl: null },
-  { id: 31, riotId: "Chogath", nameKo: "초가스", imageUrl: null },
-  { id: 42, riotId: "Corki", nameKo: "코르키", imageUrl: null },
-  { id: 122, riotId: "Darius", nameKo: "다리우스", imageUrl: null },
-  { id: 131, riotId: "Diana", nameKo: "다이애나", imageUrl: null },
-  { id: 119, riotId: "Draven", nameKo: "드레이븐", imageUrl: null },
-  { id: 36, riotId: "DrMundo", nameKo: "문도 박사", imageUrl: null },
-  { id: 245, riotId: "Ekko", nameKo: "에코", imageUrl: null },
-  { id: 60, riotId: "Elise", nameKo: "엘리스", imageUrl: null },
-  { id: 28, riotId: "Evelynn", nameKo: "이블린", imageUrl: null },
-  { id: 81, riotId: "Ezreal", nameKo: "이즈리얼", imageUrl: null },
-  { id: 9, riotId: "Fiddlesticks", nameKo: "피들스틱", imageUrl: null },
-  { id: 114, riotId: "Fiora", nameKo: "피오라", imageUrl: null },
-  { id: 105, riotId: "Fizz", nameKo: "피즈", imageUrl: null },
-  { id: 3, riotId: "Galio", nameKo: "갈리오", imageUrl: null },
-  { id: 41, riotId: "Gangplank", nameKo: "갱플랭크", imageUrl: null },
-  { id: 86, riotId: "Garen", nameKo: "가렌", imageUrl: null },
-  { id: 150, riotId: "Gnar", nameKo: "나르", imageUrl: null },
-  { id: 79, riotId: "Gragas", nameKo: "그라가스", imageUrl: null },
-  { id: 104, riotId: "Graves", nameKo: "그레이브즈", imageUrl: null },
-];
-
-/** 대회 표준 20스텝 중 진행 중인 상태 (6밴 → 6픽 → 4밴 → 4픽) */
-export const mockDraftSteps: DraftStep[] = [
-  { stepNo: 1, side: "BLUE", actionType: "BAN", championId: 266 },
-  { stepNo: 2, side: "RED", actionType: "BAN", championId: 103 },
-  { stepNo: 3, side: "BLUE", actionType: "BAN", championId: 84 },
-  { stepNo: 4, side: "RED", actionType: "BAN", championId: 122 },
-  { stepNo: 5, side: "BLUE", actionType: "BAN", championId: 245 },
-  { stepNo: 6, side: "RED", actionType: "BAN", championId: 164 },
-  { stepNo: 7, side: "BLUE", actionType: "PICK", championId: 268 },
-  { stepNo: 8, side: "RED", actionType: "PICK", championId: 51 },
-  { stepNo: 9, side: "RED", actionType: "PICK", championId: 60 },
-  { stepNo: 10, side: "BLUE", actionType: "PICK", championId: 432 },
-  { stepNo: 11, side: "BLUE", actionType: "PICK", championId: null },
-  { stepNo: 12, side: "RED", actionType: "PICK", championId: null },
-  { stepNo: 13, side: "RED", actionType: "BAN", championId: null },
-  { stepNo: 14, side: "BLUE", actionType: "BAN", championId: null },
-  { stepNo: 15, side: "RED", actionType: "BAN", championId: null },
-  { stepNo: 16, side: "BLUE", actionType: "BAN", championId: null },
-  { stepNo: 17, side: "RED", actionType: "PICK", championId: null },
-  { stepNo: 18, side: "BLUE", actionType: "PICK", championId: null },
-  { stepNo: 19, side: "BLUE", actionType: "PICK", championId: null },
-  { stepNo: 20, side: "RED", actionType: "PICK", championId: null },
-];
-
-/** 피어리스로 이미 소진되어 이번 판에 못 쓰는 챔피언 */
-export const mockFearlessUsed = [1, 22, 12, 32, 34, 136, 53, 63, 201, 69, 31, 42];

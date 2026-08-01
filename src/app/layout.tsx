@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_KR, IBM_Plex_Mono } from "next/font/google";
+import { AuthProvider } from "@/hooks/useAuth";
 import "./globals.css";
 
 /**
@@ -29,7 +30,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className={`${plexKr.variable} ${plexMono.variable} h-full`}>
-      <body className="min-h-full bg-bg text-text">{children}</body>
+      <body className="min-h-full bg-bg text-text">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

@@ -36,15 +36,13 @@ export const TIER_LABEL: Record<Tier, string> = {
 };
 
 export const FEARLESS_LABEL: Record<FearlessMode, string> = {
-  NONE: "일반",
-  FEARLESS: "피어리스 (팀별)",
-  GLOBAL_FEARLESS: "피어리스 (전체)",
+  NONE: "피어리스 사용 안 함",
+  GLOBAL_FEARLESS: "글로벌 피어리스",
   HARD_FEARLESS: "하드 피어리스",
 };
 
 export const FEARLESS_DESCRIPTION: Record<FearlessMode, string> = {
-  NONE: "챔피언 제한 없음",
-  FEARLESS: "블루가 뽑은 챔피언은 블루만 다시 못 쓴다",
+  NONE: "이전 매치의 밴과 픽이 다음 매치에 영향을 주지 않습니다.",
   GLOBAL_FEARLESS: "한 번 뽑힌 챔피언은 세션 내내 아무도 못 쓴다",
   HARD_FEARLESS: "픽과 밴 모두 소진 처리한다",
 };
