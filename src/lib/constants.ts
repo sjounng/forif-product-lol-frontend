@@ -2,7 +2,7 @@ import type { FearlessMode, Lane, Tier } from "@/types";
 
 export const LANES: Lane[] = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"];
 
-/** 표에서 세로 정렬되도록 전부 3글자로 맞춘다 */
+/** 표에서 세로로 정렬되도록 라인 이름을 짧은 영문으로 통일한다. */
 export const LANE_LABEL: Record<Lane | "FILL", string> = {
   TOP: "TOP",
   JUNGLE: "JGL",
@@ -36,22 +36,13 @@ export const TIER_LABEL: Record<Tier, string> = {
 };
 
 export const FEARLESS_LABEL: Record<FearlessMode, string> = {
-  NONE: "일반",
-  FEARLESS: "피어리스 (팀별)",
-  GLOBAL_FEARLESS: "피어리스 (전체)",
+  NONE: "피어리스 사용 안 함",
+  GLOBAL_FEARLESS: "글로벌 피어리스",
   HARD_FEARLESS: "하드 피어리스",
 };
 
 export const FEARLESS_DESCRIPTION: Record<FearlessMode, string> = {
-  NONE: "챔피언 제한 없음",
-  FEARLESS: "블루가 뽑은 챔피언은 블루만 다시 못 쓴다",
-  GLOBAL_FEARLESS: "한 번 뽑힌 챔피언은 세션 내내 아무도 못 쓴다",
-  HARD_FEARLESS: "픽과 밴 모두 소진 처리한다",
+  NONE: "이전 매치의 밴과 픽이 다음 매치에 영향을 주지 않습니다.",
+  GLOBAL_FEARLESS: "한 번 픽한 챔피언은 세션 내에서 다시 사용할 수 없습니다.",
+  HARD_FEARLESS: "픽과 밴에 사용된 모든 챔피언을 다음 매치에서 사용할 수 없습니다.",
 };
-
-/** 팀 구성 하드 제약 기본값 (DESIGN §5) */
-export const DEFAULT_MAX_TOTAL_DIFF = 150;
-export const DEFAULT_MAX_LANE_DIFF = 300;
-
-/** 매치 인원 — UNIQUE(match_id, side, lane) 로 DB가 물리적으로 강제한다 */
-export const PLAYERS_PER_MATCH = 10;

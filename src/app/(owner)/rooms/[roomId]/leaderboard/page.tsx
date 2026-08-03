@@ -1,87 +1,114 @@
-import { Card } from "@/components/ui/Card";
-import { LaneTag } from "@/components/ui/LaneTag";
-import { formatRank, formatWinRate } from "@/lib/format";
-import { mockPlayers } from "@/lib/mock";
+"use client";
 
-/**
- * 담당: B
- *
- * 점수는 방 단위다. 같은 롤 계정이 A방·B방에 있어도 점수가 따로 논다.
- * 시드(솔랭 환산)만 같은 출발점이고, 내전 5경기면 실제 내전 실력으로 수렴한다.
- *
- * TODO(B):
- *   - mockPlayers → GET /api/rooms/{roomId}/players (rating DESC)
- *   - 점수 옆에 최근 변동(rating_history)을 +18 / -12 로 표시
- *   - 행 클릭 → 선수 상세: 챔피언별·라인별 전적, 점수 추이 그래프
- *     "왜 20점밖에 안 올랐냐"에 답하려면 rating_history 의 E/K/계수를 그대로 보여줘야 한다
- *   - 경기 5판 미만은 점수를 흐리게. RD 350이면 아직 시드값이나 다름없다
- */
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+import { useRoom } from "@/components/group/RoomShell";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { LanePreferenceIcons } from "@/components/ui/LaneIcon";
+import { TierIcon } from "@/components/ui/TierIcon";
+import { fetchPlayers, syncPlayers } from "@/lib/api/players";
+import { formatRank } from "@/lib/format";
+import type { Player } from "@/types";
+
+type SortKey = "rank" | "solo" | "winRate" | "rating";
+
+function soloWinRate(player: Player) {
+  const wins = player.riotAccount?.wins ?? 0;
+  const games = wins + (player.riotAccount?.losses ?? 0);
+  return games ? wins / games : 0;
+}
+
 export default function LeaderboardPage() {
-  const ranked = [...mockPlayers].sort((a, b) => b.rating - a.rating);
+  const params = useParams<{ roomId: string }>();
+  const { room } = useRoom();
+  const canManage = room.myRole === "GROUP_OWNER" || room.myRole === "GROUP_MANAGER";
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [sortKey, setSortKey] = useState<SortKey>("solo");
+  const [descending, setDescending] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncNotice, setSyncNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetchPlayers(Number(params.roomId)).then(setPlayers).catch((caught) => setError(caught instanceof Error ? caught.message : "랭킹을 불러오지 못했습니다."));
+  }, [params.roomId]);
+
+  const baseRank = useMemo(() => new Map([...players].sort((a, b) => (b.riotAccount?.ladderScore ?? 0) - (a.riotAccount?.ladderScore ?? 0)).map((player, index) => [player.id, index + 1])), [players]);
+  const sorted = useMemo(() => [...players].sort((a, b) => {
+    const value = (player: Player) => {
+      if (sortKey === "rank") return baseRank.get(player.id) ?? Number.MAX_SAFE_INTEGER;
+      if (sortKey === "solo") return player.riotAccount?.ladderScore ?? 0;
+      if (sortKey === "winRate") return soloWinRate(player);
+      return player.rating;
+    };
+    const difference = value(a) - value(b);
+    return descending ? -difference : difference;
+  }), [baseRank, descending, players, sortKey]);
+
+  function toggle(key: SortKey) {
+    if (sortKey === key) setDescending((value) => !value);
+    else { setSortKey(key); setDescending(key !== "rank"); }
+  }
+
+  async function handleSync() {
+    try {
+      setSyncing(true);
+      setError(null);
+      setSyncNotice(null);
+      const refreshed = await syncPlayers(room.id);
+      setPlayers(refreshed);
+      setSyncNotice(`${refreshed.length}명의 솔로랭크 정보를 갱신했습니다.`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "솔로랭크 정보를 갱신하지 못했습니다.");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  const heading = (key: SortKey, label: string) => (
+    <button type="button" onClick={() => toggle(key)} className="eyebrow hover:text-text">
+      {label}{sortKey === key ? (descending ? " ↓" : " ↑") : ""}
+    </button>
+  );
 
   return (
     <main className="px-8 py-8">
-      <div className="mb-8">
-        <p className="eyebrow mb-2">랭킹</p>
-        <h1 className="text-xl font-semibold tracking-tight">방 내전 점수</h1>
-        <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted">
-          솔랭 티어는 출발점일 뿐입니다. 내전 5경기면 이 방에서의 실제 실력으로
-          수렴합니다.
-        </p>
-      </div>
-
-      <Card>
-        <div className="flex items-center gap-4 border-b border-line px-5 py-2.5">
-          <span className="eyebrow w-8">순위</span>
-          <span className="eyebrow flex-1">선수</span>
-          <span className="eyebrow hidden w-36 sm:block">솔랭</span>
-          <span className="eyebrow w-16 text-right">전적</span>
-          <span className="eyebrow w-12 text-right">승률</span>
-          <span className="eyebrow w-16 text-right">점수</span>
+      {canManage && (
+        <div className="mb-4 flex justify-end">
+          <Button size="sm" onClick={() => void handleSync()} disabled={syncing || players.length === 0}>
+            {syncing ? "Riot 동기화 중…" : "솔로랭크 새로고침"}
+          </Button>
         </div>
-
-        <ul>
-          {ranked.map((player, index) => {
-            const provisional = player.gamesPlayed < 5;
-            return (
-              <li
-                key={player.id}
-                className="flex items-center gap-4 border-b border-line-soft px-5 py-3 last:border-b-0"
-              >
-                <span
-                  className={`tabular w-8 text-sm ${index < 3 ? "text-gold" : "text-dim"}`}
-                >
-                  {index + 1}
-                </span>
-
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <span className="truncate text-sm">{player.displayName}</span>
-                  {player.primaryLane && <LaneTag lane={player.primaryLane} />}
+      )}
+      <div className="mb-8"><p className="eyebrow mb-2">랭킹</p><h1 className="text-xl font-semibold">솔로랭크 현황</h1><p className="mt-2 text-[13px] text-muted">그룹 레이팅 계산은 개발 중이며, 현재 표의 솔로랭크 데이터는 Riot 계정 동기화 결과입니다.</p></div>
+      {error && <p className="mb-5 text-sm text-loss">{error}</p>}
+      {syncNotice && <p className="mb-5 text-sm text-gain">{syncNotice}</p>}
+      <Card className="overflow-x-auto">
+        <div className="grid min-w-[760px] grid-cols-[64px_minmax(180px,1fr)_150px_110px_90px_110px] items-center gap-3 border-b border-line px-5 py-3">
+          {heading("rank", "순위")}<span className="eyebrow">이름</span>{heading("solo", "솔랭 점수")}<span className="eyebrow text-right">솔랭 전적</span><span className="text-right">{heading("winRate", "승률")}</span><span className="text-right">{heading("rating", "레이팅")}</span>
+        </div>
+        {sorted.length === 0 ? <p className="px-5 py-12 text-center text-sm text-muted">Riot 계정이 연동된 참가자가 없습니다.</p> : (
+          <ul>{sorted.map((player) => {
+            const account = player.riotAccount;
+            const wins = account?.wins ?? 0;
+            const losses = account?.losses ?? 0;
+            return <li key={player.id} className="grid min-w-[760px] grid-cols-[64px_minmax(180px,1fr)_150px_110px_90px_110px] items-center gap-3 border-b border-line-soft px-5 py-3 last:border-0">
+              <span className="tabular text-sm text-gold">{baseRank.get(player.id)}</span>
+              <div className="flex min-w-0 items-center gap-2"><span className="truncate text-sm">{player.displayName}</span><LanePreferenceIcons primary={player.primaryLane === "FILL" ? null : player.primaryLane} secondary={player.secondaryLane === "FILL" ? null : player.secondaryLane} /></div>
+              <div className="flex items-center gap-2">
+                <TierIcon tier={account?.tier ?? "UNRANKED"} size={48} />
+                <div>
+                  <p className="text-sm">{formatRank(account)}</p>
+                  <p className="tabular mt-0.5 text-xs text-dim">{(account?.ladderScore ?? 0).toLocaleString()}점</p>
                 </div>
-
-                <span className="hidden w-36 text-[13px] text-muted sm:block">
-                  {formatRank(player.riotAccount)}
-                </span>
-
-                <span className="tabular w-16 text-right text-[13px] text-muted">
-                  {player.wins}-{player.losses}
-                </span>
-
-                <span className="tabular w-12 text-right text-[13px] text-muted">
-                  {formatWinRate(player.wins, player.gamesPlayed)}
-                </span>
-
-                <span
-                  className={`tabular w-16 text-right text-sm ${provisional ? "text-dim" : ""}`}
-                  title={provisional ? "5경기 미만 — 아직 시드 점수에 가깝습니다" : undefined}
-                >
-                  {player.rating.toLocaleString()}
-                  {provisional && "?"}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+              </div>
+              <span className="tabular text-right text-sm text-muted">{wins}승 {losses}패</span>
+              <span className="tabular text-right text-sm text-muted">{wins + losses ? `${(soloWinRate(player) * 100).toFixed(1)}%` : "-"}</span>
+              <span className="text-right text-xs text-dim" title="레이팅 계산식 연동 예정">개발 중</span>
+            </li>;
+          })}</ul>
+        )}
       </Card>
     </main>
   );

@@ -3,8 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { ProfileDialog } from "@/components/auth/ProfileDialog";
 
 /**
  * 전역 네비게이션 바.
@@ -23,7 +26,14 @@ const NAV = [
 
 export function NavBar() {
   const pathname = usePathname();
-  const { user, isLoggedIn } = useAuth();
+  const router = useRouter();
+  const { user, isLoggedIn, loading, signOut } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  async function handleLogout() {
+    await signOut();
+    router.replace("/");
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-black">
@@ -61,25 +71,34 @@ export function NavBar() {
 
         {/* 오른쪽 — 인증 */}
         <div className="flex shrink-0 items-center gap-4">
-          {isLoggedIn ? (
+          {!loading && isLoggedIn ? (
             <>
-              <span className="hidden text-base text-white/80 sm:inline">
+              <button
+                type="button"
+                className="max-w-28 truncate rounded-md px-2 py-1 text-sm text-white/80 hover:bg-white/10 hover:text-white sm:max-w-44 sm:text-base"
+                onClick={() => setProfileOpen(true)}
+              >
                 {user?.displayName}
-              </span>
-              {/* TODO(A): onClick → logout() 후 "/" 로 */}
-              <Button size="md" variant="ghost" className="!text-white hover:!bg-white/10">
+              </button>
+              <Button
+                size="md"
+                variant="ghost"
+                className="!text-white hover:!bg-white/10"
+                onClick={handleLogout}
+              >
                 로그아웃
               </Button>
             </>
-          ) : (
+          ) : !loading ? (
             <Link href="/login">
               <Button size="md" variant="primary">
                 로그인
               </Button>
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
+      {profileOpen && <ProfileDialog open onClose={() => setProfileOpen(false)} />}
     </header>
   );
 }

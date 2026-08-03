@@ -14,7 +14,9 @@ export default function OwnerLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <NavBar />
-      <div className="flex flex-1">{children}</div>
+      <div className="flex flex-1">
+        {children}
+      </div>
     </div>
   );
 }

@@ -1,92 +1,149 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
+import { useRoom } from "@/components/group/RoomShell";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Field, Input } from "@/components/ui/Field";
-import { mockRooms } from "@/lib/mock";
+import { rotatePublicCode, updateRoom } from "@/lib/api/rooms";
+import { deleteRoom, leaveRoom } from "@/lib/api/rooms";
+import { useRouter } from "next/navigation";
 
-/**
- * 담당: A
- *
- * TODO(A):
- *   1. 방 정보 수정 → PATCH /api/rooms/{roomId}
- *   2. 입장 링크 복사 버튼 — 실제로 사람들에게 뿌리는 건 이 URL이다. 크게, 누르기 쉽게.
- *   3. 입장 코드 재발급 → 새 평문 코드를 응답에서 딱 한 번 받는다.
- *      받은 즉시 모달로 보여주고 복사시킬 것. 다시 볼 수 없다(서버는 해시만 저장).
- *   4. guest_can_draft 토글 — 끄면 게스트는 좌석에 못 앉고 방장이 양쪽을 조작한다.
- */
-export default async function RoomSettingsPage({
-  params,
-}: {
-  params: Promise<{ roomId: string }>;
-}) {
-  const { roomId } = await params;
-  const room = mockRooms.find((r) => r.id === Number(roomId)) ?? mockRooms[0];
-  const entryUrl = `https://scrim.local/r/${room.publicCode}`;
+export default function RoomSettingsPage() {
+  const { room, setRoom } = useRoom();
+  const router = useRouter();
+  const canManage = room.myRole === "GROUP_OWNER" || room.myRole === "GROUP_MANAGER";
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const entryUrl =
+    typeof window === "undefined"
+      ? `/r/${room.publicCode}`
+      : `${window.location.origin}/r/${room.publicCode}`;
+
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setMessage(null);
+    const data = new FormData(event.currentTarget);
+    const newPassword = String(data.get("entryPassword"));
+    try {
+      const updated = await updateRoom(room.id, {
+        name: String(data.get("name")),
+        description: String(data.get("description")),
+        guestAdmissionEnabled: data.get("guestAdmissionEnabled") === "on",
+        ...(newPassword ? { entryPassword: newPassword } : {}),
+      });
+      setRoom(updated);
+      setMessage("변경 사항을 저장했습니다.");
+      event.currentTarget.reset();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "설정을 저장하지 못했습니다.");
+    }
+  }
+
+  async function rotate() {
+    if (!window.confirm("공개 코드를 바꾸면 이전 링크로 새로 입장할 수 없습니다. 계속할까요?")) {
+      return;
+    }
+    try {
+      const updated = await rotatePublicCode(room.id);
+      setRoom(updated);
+      setMessage("공개 코드를 재발급했습니다.");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "코드를 재발급하지 못했습니다.");
+    }
+  }
+
+  async function clearPassword() {
+    try {
+      const updated = await updateRoom(room.id, { entryPassword: "" });
+      setRoom(updated);
+      setMessage("입장 암호를 해제했습니다.");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "암호를 해제하지 못했습니다.");
+    }
+  }
+
+  async function leaveOrDelete() {
+    const owner = room.myRole === "GROUP_OWNER";
+    if (!window.confirm(owner ? "그룹과 신규 접근을 삭제할까요? 기존 경기 기록은 보존됩니다." : "이 그룹에서 탈퇴할까요?")) return;
+    try {
+      if (owner) await deleteRoom(room.id);
+      else await leaveRoom(room.id);
+      router.replace("/rooms");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : owner ? "그룹을 삭제하지 못했습니다." : "그룹을 탈퇴하지 못했습니다.");
+    }
+  }
 
   return (
     <main className="max-w-2xl px-8 py-8">
       <div className="mb-8">
         <p className="eyebrow mb-2">설정</p>
-        <h1 className="text-xl font-semibold tracking-tight">방 설정</h1>
+        <h1 className="text-xl font-semibold tracking-tight">그룹 설정</h1>
       </div>
 
+      {error && <p className="mb-4 text-sm text-loss">{error}</p>}
+      {message && <p className="mb-4 text-sm text-gain">{message}</p>}
+
       <div className="space-y-6">
-        <Card>
-          <CardHeader eyebrow="참가자에게 공유" title="입장 링크" />
-          <div className="space-y-5 px-5 py-5">
-            <Field
-              label="링크"
-              hint="노출돼도 괜찮습니다. 입장 코드를 모르면 들어올 수 없습니다."
-            >
+        {canManage && <Card>
+          <CardHeader eyebrow="참가자에게 공유" title="초대 링크" />
+          <div className="space-y-4 px-5 py-5">
+            <Field label="링크" hint="코드를 재발급하면 이전 링크의 신규 입장이 차단됩니다.">
               <div className="flex gap-2">
                 <Input readOnly value={entryUrl} className="tabular text-[13px]" />
-                <Button>복사</Button>
+                <Button type="button" onClick={() => void navigator.clipboard.writeText(entryUrl)}>
+                  복사
+                </Button>
               </div>
             </Field>
-
-            <Field
-              label="입장 코드"
-              hint="서버에는 해시만 저장됩니다. 코드가 새어 나가면 재발급하세요."
-            >
-              <div className="flex gap-2">
-                <Input readOnly value="••••••" className="tabular" />
-                <Button variant="danger">재발급</Button>
-              </div>
-            </Field>
+            <Button type="button" variant="danger" size="sm" onClick={() => void rotate()}>
+              공개 코드 재발급
+            </Button>
           </div>
-        </Card>
+        </Card>}
 
-        <Card>
-          <CardHeader eyebrow="권한" title="게스트" />
-          <div className="px-5 py-5">
-            <label className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                defaultChecked={room.guestCanDraft}
-                className="mt-0.5 h-4 w-4 accent-[var(--color-gold)]"
-              />
-              <span>
-                <span className="block text-sm">게스트가 밴픽을 조작할 수 있습니다</span>
-                <span className="mt-1 block text-xs leading-relaxed text-dim">
-                  끄면 모든 게스트는 관전만 하고, 방장이 양 팀 밴픽을 직접
-                  진행합니다.
-                </span>
-              </span>
-            </label>
-          </div>
-        </Card>
-
-        <Card>
-          <CardHeader eyebrow="방 정보" title="이름과 설명" />
-          <div className="space-y-4 px-5 py-5">
-            <Field label="방 이름">
-              <Input defaultValue={room.name} maxLength={100} />
+        {canManage && <Card>
+          <CardHeader eyebrow="그룹 정보" title="이름·설명·입장 정책" />
+          <form className="space-y-4 px-5 py-5" onSubmit={save}>
+            <Field label="그룹 이름">
+              <Input name="name" defaultValue={room.name} maxLength={100} required />
             </Field>
             <Field label="설명">
-              <Input defaultValue={room.description ?? ""} maxLength={500} />
+              <Input name="description" defaultValue={room.description ?? ""} maxLength={500} />
             </Field>
-            <Button variant="primary" size="sm">
-              변경 사항 저장
-            </Button>
+            <label className="flex items-center gap-3 text-sm">
+              <input
+                name="guestAdmissionEnabled"
+                type="checkbox"
+                defaultChecked={room.guestAdmissionEnabled}
+                className="h-4 w-4 accent-[var(--color-gold)]"
+              />
+              신규 게스트 입장 허용
+            </label>
+            <Field
+              label="새 입장 암호"
+              hint={room.entryPasswordProtected ? "현재 암호를 바꾸려면 새 암호를 입력하세요." : "비워 두면 암호를 사용하지 않습니다."}
+            >
+              <Input name="entryPassword" type="password" minLength={4} maxLength={72} />
+            </Field>
+            <div className="flex flex-wrap gap-2">
+              <Button type="submit" variant="primary" size="sm">변경 사항 저장</Button>
+              {room.entryPasswordProtected && (
+                <Button type="button" size="sm" onClick={() => void clearPassword()}>
+                  입장 암호 해제
+                </Button>
+              )}
+            </div>
+          </form>
+        </Card>}
+
+        <Card className="border-loss/30">
+          <CardHeader eyebrow="주의" title={room.myRole === "GROUP_OWNER" ? "그룹 삭제" : "그룹 탈퇴"} />
+          <div className="px-5 py-5">
+            <p className="mb-4 text-sm leading-relaxed text-muted">{room.myRole === "GROUP_OWNER" ? "그룹을 보관 상태로 전환해 더 이상 접근하거나 참가할 수 없게 합니다." : "탈퇴하면 참가자 목록에서 사라지고 다시 초대받기 전에는 그룹에 접근할 수 없습니다."}</p>
+            <Button variant="danger" onClick={() => void leaveOrDelete()}>{room.myRole === "GROUP_OWNER" ? "그룹 삭제" : "그룹 탈퇴"}</Button>
           </div>
         </Card>
       </div>

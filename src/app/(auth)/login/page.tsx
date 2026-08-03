@@ -1,43 +1,54 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Field";
+import { useAuth } from "@/hooks/useAuth";
 
-/**
- * 담당: A — 백엔드가 이미 완성된 유일한 화면이다.
- *
- * TODO(A):
- *   1. "use client" 로 바꾸고 form 상태를 잡는다
- *   2. submit → login(email, password)
- *   3. 성공: accessToken 은 메모리(setAccessToken), refreshToken 은 httpOnly 쿠키로.
- *      localStorage 에 넣지 말 것 — XSS 한 방에 계정이 털린다.
- *   4. 실패: 백엔드가 주는 message 를 폼 위에 그대로 노출 (401 "이메일 또는 비밀번호가 올바르지 않습니다.")
- *   5. 성공 후 router.replace("/rooms")
- */
 export default function LoginPage() {
+  const router = useRouter();
+  const { signIn } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    const data = new FormData(event.currentTarget);
+    try {
+      await signIn(String(data.get("email")), String(data.get("password")));
+      router.replace("/rooms");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "로그인하지 못했습니다.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <>
       <div className="mb-8">
         <p className="eyebrow mb-2">내전하냥</p>
         <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">
-          방을 만들고 관리하려면 로그인이 필요합니다. 내전에 참여만 할
-          사람은 방장이 준 링크로 바로 들어가면 됩니다.
+          그룹을 만들고 관리하려면 로그인이 필요합니다. 참가자는 초대
+          링크로 계정 없이 입장할 수 있습니다.
         </p>
       </div>
 
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <Field label="이메일">
-          <Input type="email" name="email" placeholder="owner@example.com" autoComplete="email" />
+          <Input type="email" name="email" autoComplete="email" required />
         </Field>
-
         <Field label="비밀번호">
-          <Input type="password" name="password" autoComplete="current-password" />
+          <Input type="password" name="password" autoComplete="current-password" required />
         </Field>
-
-        {/* TODO(A): 에러 메시지 자리 — 백엔드 message 를 그대로 */}
-
-        <Button type="submit" variant="primary" className="w-full">
-          로그인
+        {error && <p className="text-sm text-loss">{error}</p>}
+        <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+          {submitting ? "로그인 중…" : "로그인"}
         </Button>
       </form>
 

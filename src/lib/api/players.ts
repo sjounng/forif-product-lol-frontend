@@ -1,4 +1,5 @@
 import type { Player } from "@/types";
+import { apiFetch } from "@/lib/api/client";
 
 /**
  * 담당: B
@@ -15,24 +16,45 @@ import type { Player } from "@/types";
  * 조회 실패해도 riot_account_id=NULL 로 수동 등록이 되어야 한다.
  */
 
-// TODO(B): apiFetch 로 구현
-export async function fetchPlayers(_roomId: number): Promise<Player[]> {
-  throw new Error("미구현: GET /api/rooms/{roomId}/players");
+export function fetchPlayers(roomId: number): Promise<Player[]> {
+  return apiFetch<Player[]>(`/api/rooms/${roomId}/players`);
 }
 
-// TODO(B): apiFetch 로 구현
-export async function addPlayer(
-  _roomId: number,
-  _input: { displayName: string; riotId: string },
+export function addPlayer(
+  roomId: number,
+  input: { gameName: string; tagLine: string },
 ): Promise<Player> {
-  throw new Error("미구현: POST /api/rooms/{roomId}/players");
+  return apiFetch<Player>(`/api/rooms/${roomId}/players`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function renamePlayer(roomId: number, playerId: number, displayName: string): Promise<Player> {
+  return apiFetch<Player>(`/api/rooms/${roomId}/players/${playerId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ displayName }),
+  });
+}
+
+export function removePlayer(roomId: number, playerId: number): Promise<void> {
+  return apiFetch<void>(`/api/rooms/${roomId}/players/${playerId}`, { method: "DELETE" });
+}
+
+export function syncPlayers(roomId: number): Promise<Player[]> {
+  return apiFetch<Player[]>(`/api/rooms/${roomId}/players/sync`, {
+    method: "POST",
+  });
 }
 
 // TODO(B): apiFetch 로 구현
 export async function updateLanePool(
-  _roomId: number,
-  _playerId: number,
-  _lanePool: Player["lanePool"],
+  roomId: number,
+  playerId: number,
+  lanePool: Player["lanePool"],
 ): Promise<Player> {
+  void roomId;
+  void playerId;
+  void lanePool;
   throw new Error("미구현: PATCH /api/rooms/{roomId}/players/{playerId}");
 }
