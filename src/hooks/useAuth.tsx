@@ -14,7 +14,10 @@ import {
   logout,
   signup,
 } from "@/lib/api/auth";
-import { refreshSession } from "@/lib/api/client";
+import {
+  refreshSession,
+  subscribeToSessionExpiry,
+} from "@/lib/api/client";
 
 interface AuthContextValue {
   user: User | null;
@@ -34,6 +37,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    const unsubscribe = subscribeToSessionExpiry(() => {
+      if (!active) return;
+      setUser(null);
+      setLoading(false);
+    });
     refreshSession().then((restoredUser) => {
       if (!active) return;
       setUser(restoredUser);
@@ -41,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return () => {
       active = false;
+      unsubscribe();
     };
   }, []);
 

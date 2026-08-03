@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { FEARLESS_DESCRIPTION, FEARLESS_LABEL } from "@/lib/constants";
 import { LaneTag } from "@/components/ui/LaneTag";
-import { LanePreferenceIcons } from "@/components/ui/LaneIcon";
+import { TeamBoard } from "@/components/session/TeamBoard";
 import {
   fetchMatchOverview,
   finishUnlimitedSession,
@@ -366,50 +366,14 @@ export default function SessionDetailPage() {
           {(["BLUE", "RED"] as Side[]).map((side) => {
             const team = session.teams.find((value) => value.side === side);
             return (
-              <Card key={side} className="min-w-0">
-                <CardHeader
-                  eyebrow={side === "BLUE" ? "TEAM A" : "TEAM B"}
-                  title={team?.teamName ?? `${side} 팀`}
-                  action={
-                    <div className="flex items-center gap-2">
-                      {session.viewer.captainSide === side && (
-                        <button
-                          type="button"
-                          disabled={saving}
-                          onClick={() => renameMyTeam(side)}
-                          className="text-[10px] text-muted underline-offset-4 hover:text-text hover:underline disabled:opacity-40"
-                        >
-                          팀명 변경
-                        </button>
-                      )}
-                      <Badge tone="quiet">
-                        팀장 {team?.captain.displayName ?? "—"}
-                      </Badge>
-                    </div>
-                  }
-                />
-                <ul>
-                  {team?.members.map((member) => (
-                    <li
-                      key={member.playerId}
-                      className="flex items-center gap-3 border-b border-line-soft px-5 py-3 last:border-0"
-                    >
-                      <span className="w-16 text-xs text-dim"><LaneTag lane={member.lane} /></span>
-                      <span className="min-w-0 flex-1 truncate text-sm">
-                        {member.displayName}
-                      </span>
-                      <LanePreferenceIcons primary={member.primaryLane} secondary={member.secondaryLane} />
-                      <Badge tone="quiet">
-                        {member.participantType === "MEMBER"
-                          ? "회원"
-                          : member.participantType === "GUEST"
-                            ? "게스트"
-                            : "Riot ID"}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
+              <TeamBoard
+                key={side}
+                side={side}
+                team={team}
+                canRename={session.viewer.captainSide === side}
+                saving={saving}
+                onRename={() => renameMyTeam(side)}
+              />
             );
           })}
         </div>

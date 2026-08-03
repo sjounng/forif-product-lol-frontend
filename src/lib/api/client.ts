@@ -21,13 +21,28 @@ export class ApiError extends Error {
 }
 
 let accessToken: string | null = null;
+const AUTH_SESSION_EXPIRED_EVENT = "auth:session-expired";
+let sessionExpiryNotified = false;
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
+  if (token) sessionExpiryNotified = false;
 }
 
 export function getAccessToken() {
   return accessToken;
+}
+
+export function subscribeToSessionExpiry(listener: () => void) {
+  if (typeof window === "undefined") return () => undefined;
+  window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, listener);
+  return () => window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, listener);
+}
+
+function notifySessionExpiry() {
+  if (typeof window === "undefined" || sessionExpiryNotified) return;
+  sessionExpiryNotified = true;
+  window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
 }
 
 interface RefreshPayload {
@@ -94,6 +109,7 @@ async function request<T>(
   ) {
     const user = await refreshSession();
     if (user) return request<T>(path, init, false);
+    notifySessionExpiry();
   }
 
   if (!response.ok) {

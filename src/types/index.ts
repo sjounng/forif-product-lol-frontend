@@ -46,11 +46,6 @@ export type SessionStatus =
   | "FINISHED"
   | "CANCELLED";
 export type ParticipantType = "MEMBER" | "GUEST" | "PLAYER";
-export type SessionPlayerStatus =
-  | "ROSTERED"
-  | "BENCHED"
-  | "PLAYING"
-  | "WITHDRAWN";
 export type MatchStatus =
   | "SCHEDULED"
   | "PROPOSED"
@@ -313,51 +308,6 @@ export interface MatchOverview {
   matches: SessionMatch[];
   canRequestStart: boolean;
   canFinishSession: boolean;
-}
-
-/** 세션 참가자 + 로테이션 카운터 (DESIGN §4-A) */
-export interface SessionPlayer {
-  playerId: number;
-  displayName: string;
-  status: SessionPlayerStatus;
-  rating: number;
-  gamesPlayed: number;
-  gamesBenched: number;
-  lastPlayedGameNo: number | null;
-  primaryLane: LanePreference | null;
-}
-
-/** 팀 구성 후보 1건 */
-export interface BalanceCandidate {
-  id: number;
-  rankNo: number;
-  cost: number;
-  totalDiff: number;
-  maxLaneDiff: number;
-  offRoleCount: number;
-  predictedBlueWinrate: number;
-  assignment: BalanceAssignment[];
-}
-
-export interface BalanceAssignment {
-  playerId: number;
-  displayName: string;
-  side: Side;
-  lane: Lane;
-  /** 팀 구성에 실제로 쓰인 점수 (오프롤이면 깎인 값) */
-  effRating: number;
-  assignedFrom: AssignedFrom;
-}
-
-export interface Match {
-  id: number;
-  gameNo: number;
-  status: MatchStatus;
-  winnerSide: Side | null;
-  blueTotal: number;
-  redTotal: number;
-  durationSec: number | null;
-  endedAt: string | null;
 }
 
 export interface Champion {
