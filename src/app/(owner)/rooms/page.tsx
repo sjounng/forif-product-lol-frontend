@@ -121,7 +121,7 @@ export default function RoomsPage() {
             <ul className="space-y-2">{rooms.map((room) => (
               <li key={room.id}><Link href={`/rooms/${room.id}`} className="flex items-center gap-4 rounded-[10px] border border-line bg-surface px-5 py-4 hover:border-dim">
                 <div className="min-w-0 flex-1"><p className="truncate text-[15px] font-medium">{room.name}</p>{room.description && <p className="mt-1 truncate text-xs text-dim">{room.description}</p>}</div>
-                <Badge tone="gold">{ROLE_LABEL[room.myRole]}</Badge><span className="text-xs text-muted">{room.participantCount}명</span><Badge>{room.publicCode}</Badge>
+                <span className={`text-xs ${room.myRole === "GROUP_OWNER" ? "text-gold" : "text-muted"}`}>{ROLE_LABEL[room.myRole]}</span><span className="text-xs text-muted">{room.participantCount}명</span><Badge>{room.publicCode}</Badge>
               </Link></li>
             ))}</ul>
           )}

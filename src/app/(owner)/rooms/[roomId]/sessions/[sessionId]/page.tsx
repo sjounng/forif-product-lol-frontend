@@ -4,9 +4,9 @@ import { useEffect, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { MATCH_STATUS_TONE, SESSION_STATUS_TONE, StatusTag } from "@/components/ui/StatusTag";
 import { Field, Input } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { Dialog, TextPromptDialog } from "@/components/ui/Dialog";
@@ -49,7 +49,7 @@ const MATCH_STATUS_LABEL: Record<MatchStatus, string> = {
   SCHEDULED: "예정",
   PROPOSED: "시작 제안",
   ACCEPTED: "시작 수락",
-  DRAFTING: "Draft 준비",
+  DRAFTING: "밴픽 중",
   READY_TO_PLAY: "경기 시작 대기",
   LIVE: "경기 중",
   RESULT_PENDING: "결과 확인 대기",
@@ -313,11 +313,9 @@ export default function SessionDetailPage() {
             <h1 className="text-xl font-semibold tracking-tight">
               {session.name ?? "이름 없는 세션"}
             </h1>
-            <Badge
-              tone={session.status === "IN_PROGRESS" ? "gain" : "neutral"}
-            >
+            <StatusTag tone={SESSION_STATUS_TONE[session.status]}>
               {SESSION_STATUS_LABEL[session.status]}
-            </Badge>
+            </StatusTag>
           </div>
           <p className="mt-2 text-xs text-dim">
             {MATCH_FORMAT_LABEL[session.matchFormat]} · {FEARLESS_LABEL[session.fearlessMode]}
@@ -532,17 +530,9 @@ export default function SessionDetailPage() {
                       <span className="text-sm font-medium">
                         {match.gameNo}경기
                       </span>
-                      <Badge
-                        tone={
-                          match.status === "LIVE"
-                            ? "gain"
-                            : match.status === "RESULT_DISPUTED"
-                              ? "red"
-                              : "neutral"
-                        }
-                      >
+                      <StatusTag tone={MATCH_STATUS_TONE[match.status]}>
                         {MATCH_STATUS_LABEL[match.status]}
-                      </Badge>
+                      </StatusTag>
                     </div>
                     {match.status === "COMPLETED" && match.winnerSide ? (
                       <p className="mt-1 text-xs text-dim">{matchWinnerName(match, match.winnerSide)} 승리</p>

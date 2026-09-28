@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusTag, SESSION_STATUS_TONE } from "@/components/ui/StatusTag";
 import { FEARLESS_LABEL, SESSION_STATUS_LABEL } from "@/lib/constants";
 import { fetchSessions } from "@/lib/api/sessions";
 import type { ScrimSession } from "@/types";
@@ -74,9 +75,9 @@ export default function RoomOverviewPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <p className="font-medium">{activeSession.name ?? "이름 없는 세션"}</p>
-                  <Badge tone={activeSession.status === "IN_PROGRESS" ? "gain" : "neutral"}>
+                  <StatusTag tone={SESSION_STATUS_TONE[activeSession.status]}>
                     {SESSION_STATUS_LABEL[activeSession.status]}
-                  </Badge>
+                  </StatusTag>
                 </div>
                 <p className="mt-1 text-sm text-muted">
                   {FEARLESS_LABEL[activeSession.fearlessMode]} · {activeSession.gameCount}경기

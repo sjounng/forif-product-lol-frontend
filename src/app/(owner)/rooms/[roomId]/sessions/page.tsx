@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusTag, SESSION_STATUS_TONE } from "@/components/ui/StatusTag";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Field, Input } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
@@ -355,19 +356,17 @@ export default function SessionsPage() {
                     <span className="truncate text-[15px] font-medium">
                       {session.name ?? "이름 없는 세션"}
                     </span>
-                    <Badge tone={session.status === "IN_PROGRESS" ? "gain" : "neutral"}>
+                    <StatusTag tone={SESSION_STATUS_TONE[session.status]}>
                       {SESSION_STATUS_LABEL[session.status]}
-                    </Badge>
+                    </StatusTag>
                   </div>
                   <p className="mt-1 text-xs text-dim">
                     {new Date(session.createdAt).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
                   </p>
                 </div>
-                <Badge tone={session.fearlessMode === "NONE" ? "neutral" : "gold"}>
-                  {FEARLESS_LABEL[session.fearlessMode]}
-                </Badge>
+                <span className="text-xs text-muted">{FEARLESS_LABEL[session.fearlessMode]}</span>
                 <span className="text-xs text-muted">{MATCH_FORMAT_LABEL[session.matchFormat]}</span>
-                {!session.ratingEnabled && <Badge tone="quiet">점수 미반영</Badge>}
+                {!session.ratingEnabled && <span className="text-xs text-dim">점수 미반영</span>}
                 <span className="tabular text-sm">{session.gameCount}경기</span>
               </Link>
             </li>

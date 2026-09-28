@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRoom } from "@/components/group/RoomShell";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Field, Input } from "@/components/ui/Field";
@@ -298,7 +297,7 @@ export default function PlayersPage() {
                       </p>
                     </div>
                     <LanePreferenceIcons primary={player.primaryLane === "FILL" ? null : player.primaryLane} secondary={player.secondaryLane === "FILL" ? null : player.secondaryLane} />
-                    <Badge tone="gain">{formatRank(player.riotAccount)}</Badge>
+                    <span className="tabular text-xs text-muted">{formatRank(player.riotAccount)}</span>
                     {canManage && <><Button size="sm" onClick={() => openEditDialog({ kind: "editRiot", player })}>수정</Button><Button size="sm" variant="danger" onClick={() => setDialog({ kind: "removeRiot", player })}>삭제</Button></>}
                   </li>
                 ))}
@@ -321,13 +320,9 @@ export default function PlayersPage() {
                     {member.player?.riotAccount && <p className="mt-0.5 text-xs text-dim">{member.player.riotAccount.gameName}#{member.player.riotAccount.tagLine} · {formatRank(member.player.riotAccount)}</p>}
                   </div>
                   {member.player && <LanePreferenceIcons primary={member.player.primaryLane === "FILL" ? null : member.player.primaryLane} secondary={member.player.secondaryLane === "FILL" ? null : member.player.secondaryLane} />}
-                  <Badge
-                    tone={
-                      member.role === "GROUP_OWNER" ? "gold" : "neutral"
-                    }
-                  >
+                  <span className={`text-xs ${member.role === "GROUP_OWNER" ? "text-gold" : "text-muted"}`}>
                     {ROLE_LABEL[member.role]}
-                  </Badge>
+                  </span>
                   {room.myRole === "GROUP_OWNER" &&
                     member.role !== "GROUP_OWNER" && (
                       <Button
@@ -364,7 +359,6 @@ export default function PlayersPage() {
                       <span className="min-w-0 flex-1 truncate text-sm">
                         {guest.nickname}
                       </span>
-                      <Badge tone="gain">활성</Badge>
                       <Button size="sm" onClick={() => openEditDialog({ kind: "editGuest", guest })}>
                         이름 변경
                       </Button>
