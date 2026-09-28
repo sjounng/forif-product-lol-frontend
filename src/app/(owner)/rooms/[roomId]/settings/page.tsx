@@ -7,6 +7,7 @@ import { Card, CardHeader } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Dialog } from "@/components/ui/Dialog";
 import { Field, Input } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { rotatePublicCode, updateRoom } from "@/lib/api/rooms";
 import { deleteRoom, leaveRoom } from "@/lib/api/rooms";
 import { useRouter } from "next/navigation";
@@ -86,10 +87,10 @@ export default function RoomSettingsPage() {
 
   return (
     <main className="px-8 py-8">
-      <h1 className="mb-8 text-xl font-semibold tracking-tight">그룹 설정</h1>
+      <PageHeader title="그룹 설정" />
 
-      {error && <p className="mb-4 text-sm text-loss">{error}</p>}
-      {message && <p className="mb-4 text-sm text-gain">{message}</p>}
+      {error && <p role="alert" className="mb-5 text-sm text-loss">{error}</p>}
+      {message && <p className="mb-5 text-sm text-gain">{message}</p>}
 
       <div className="space-y-6">
         {canManage && <Card>
@@ -100,7 +101,8 @@ export default function RoomSettingsPage() {
               <Input readOnly value={entryUrl} className="tabular min-w-0 text-[13px]" />
               <Button
                 type="button"
-                className="shrink-0 whitespace-nowrap"
+                size="sm"
+                className="h-10 shrink-0 whitespace-nowrap"
                 onClick={() => void navigator.clipboard.writeText(entryUrl)}
               >
                 복사

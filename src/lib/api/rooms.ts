@@ -2,7 +2,6 @@ import type {
   CaptainInvitation,
   GroupGuest,
   GroupRole,
-  GroupUser,
   GuestEntry,
   PublicRoom,
   Room,
@@ -52,12 +51,6 @@ export function rotatePublicCode(roomId: number): Promise<Room> {
   });
 }
 
-export function searchUsers(query: string): Promise<GroupUser[]> {
-  return apiFetch<GroupUser[]>(
-    `/api/users/search?q=${encodeURIComponent(query)}`,
-  );
-}
-
 export function fetchCaptainInvitations(): Promise<CaptainInvitation[]> {
   return apiFetch<CaptainInvitation[]>("/api/group-invitations");
 }
@@ -69,19 +62,6 @@ export function respondToCaptainInvitation(
   return apiFetch<CaptainInvitation>(
     `/api/group-invitations/${invitationId}/${response}`,
     { method: "POST" },
-  );
-}
-
-export function inviteCaptain(
-  roomId: number,
-  userId: number,
-): Promise<CaptainInvitation> {
-  return apiFetch<CaptainInvitation>(
-    `/api/rooms/${roomId}/captain-invitations`,
-    {
-      method: "POST",
-      body: JSON.stringify({ userId }),
-    },
   );
 }
 

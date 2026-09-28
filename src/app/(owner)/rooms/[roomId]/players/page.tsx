@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Field, Input } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Dialog, TextPromptDialog } from "@/components/ui/Dialog";
-import { addPlayer, fetchPlayers, removePlayer, renamePlayer, syncPlayers } from "@/lib/api/players";
+import { addPlayer, fetchPlayers, removePlayer, renamePlayer } from "@/lib/api/players";
 import {
   changeRoomMemberRole,
   fetchGuests,
@@ -44,9 +45,7 @@ export default function PlayersPage() {
   const [tagLine, setTagLine] = useState("");
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [syncNotice, setSyncNotice] = useState<string | null>(null);
   const [participantQuery, setParticipantQuery] = useState("");
   const [dialog, setDialog] = useState<ParticipantDialog | null>(null);
   const [dialogValue, setDialogValue] = useState("");
@@ -166,21 +165,6 @@ export default function PlayersPage() {
     }
   }
 
-  async function handleSyncPlayers() {
-    try {
-      setSyncing(true);
-      setError(null);
-      setSyncNotice(null);
-      const refreshed = await syncPlayers(room.id);
-      await load();
-      setSyncNotice(`${refreshed.length}명의 솔로랭크 정보를 갱신했습니다.`);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "솔로랭크 정보를 갱신하지 못했습니다.");
-    } finally {
-      setSyncing(false);
-    }
-  }
-
   async function confirmDialog() {
     if (!dialog) return;
     const value = dialogValue.trim();
@@ -220,17 +204,14 @@ export default function PlayersPage() {
 
   return (
     <main className="px-8 py-8">
-      <h1 className="mb-8 text-xl font-semibold tracking-tight">
-        회원 {members.length}명 · Riot ID {riotPlayers.filter((player) => player.memberUserId === null).length}명
-        {canManage ? ` · 게스트 ${guests.length}명` : ""}
-      </h1>
+      <PageHeader title="참가자" />
 
       {error && (
         <p role="alert" className="mb-5 text-sm text-loss">
           {error}
         </p>
       )}
-      <label className="mb-5 flex max-w-xl items-center gap-3 rounded-lg border border-line bg-surface px-4">
+      <label className="mb-5 flex max-w-xl items-center gap-3 rounded-md border border-line bg-surface px-4">
         <span aria-hidden="true" className="text-muted">⌕</span>
         <span className="sr-only">참가자 검색</span>
         <Input
@@ -249,16 +230,8 @@ export default function PlayersPage() {
           </button>
         )}
       </label>
-      {canManage && riotPlayers.length > 0 && (
-        <div className="mb-5 flex flex-wrap items-center gap-3">
-          <Button size="sm" onClick={() => void handleSyncPlayers()} disabled={syncing}>
-            {syncing ? "Riot 동기화 중…" : "솔로랭크 새로고침"}
-          </Button>
-          {syncNotice && <span className="text-sm text-gain">{syncNotice}</span>}
-        </div>
-      )}
       {loading ? (
-        <p className="text-sm text-muted">참가자를 불러오는 중…</p>
+        <p className="text-sm text-muted">불러오는 중…</p>
       ) : (
         <div className="space-y-6">
           {canManage && (
@@ -304,9 +277,9 @@ export default function PlayersPage() {
           )}
 
           <Card>
-            <CardHeader title="비회원 참가자" />
+            <CardHeader title={`비회원 참가자 ${riotPlayers.filter((player) => player.memberUserId === null).length}`} />
             {visibleRiotPlayers.length === 0 ? (
-              <p className="px-5 py-8 text-center text-sm text-muted">
+              <p className="px-5 py-10 text-center text-sm text-muted">
                 {normalizedQuery ? "검색된 Riot ID 참가자가 없습니다." : "등록된 Riot ID 참가자가 없습니다."}
               </p>
             ) : (
@@ -334,9 +307,9 @@ export default function PlayersPage() {
           </Card>
 
           <Card>
-            <CardHeader title="회원" />
+            <CardHeader title={`회원 ${members.length}`} />
             {visibleMembers.length === 0 ? (
-              <p className="px-5 py-8 text-center text-sm text-muted">검색된 회원이 없습니다.</p>
+              <p className="px-5 py-10 text-center text-sm text-muted">검색된 회원이 없습니다.</p>
             ) : <ul>
               {visibleMembers.map((member) => (
                 <li
@@ -376,9 +349,9 @@ export default function PlayersPage() {
 
           {canManage && (
             <Card>
-              <CardHeader title="게스트" />
+              <CardHeader title={`게스트 ${guests.length}`} />
               {visibleGuests.length === 0 ? (
-                <p className="px-5 py-8 text-center text-sm text-muted">
+                <p className="px-5 py-10 text-center text-sm text-muted">
                   {normalizedQuery ? "검색된 게스트가 없습니다." : "입장한 게스트가 없습니다."}
                 </p>
               ) : (

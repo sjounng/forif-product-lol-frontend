@@ -100,7 +100,7 @@ export default function GuestEntryPage({
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center text-sm text-muted">
-        그룹을 확인하는 중…
+        불러오는 중…
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function GuestEntryPage({
     return (
       <div className="flex min-h-dvh items-center justify-center px-6 py-12">
         <Card className="w-full max-w-md px-6 py-7">
-          <h1 className="text-xl font-semibold">{entry.room.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{entry.room.name}</h1>
           <p className="mt-3 text-sm">
             <span className="text-gold">{entry.guest.nickname}</span> 님으로 입장했습니다.
           </p>

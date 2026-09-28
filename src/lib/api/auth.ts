@@ -40,10 +40,6 @@ export async function signup(
   });
 }
 
-export async function fetchMe(): Promise<User> {
-  return apiFetch<User>("/api/auth/me");
-}
-
 export async function logout(): Promise<void> {
   try {
     await apiFetch<void>("/api/auth/logout", { method: "POST" });

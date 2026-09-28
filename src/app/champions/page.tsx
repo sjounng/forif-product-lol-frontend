@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { NavBar } from "@/components/layout/NavBar";
 import { Card } from "@/components/ui/Card";
 import { LaneIcon } from "@/components/ui/LaneIcon";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { championSquareUrl } from "@/lib/champion-art";
 import { isStandardChampion } from "@/lib/champion-catalog";
 import { fetchGlobalChampionAnalytics } from "@/lib/api/champions";
@@ -113,7 +114,7 @@ export default function ChampionAnalyticsPage() {
     <div className="min-h-dvh bg-bg">
       <NavBar />
       <main className="mx-auto max-w-6xl px-6 py-10">
-        <h1 className="mb-8 text-xl font-semibold tracking-tight">챔피언 분석</h1>
+        <PageHeader title="챔피언 분석" />
 
         <Card className="mb-5 p-3">
           <div className="flex flex-wrap gap-2">
@@ -136,11 +137,11 @@ export default function ChampionAnalyticsPage() {
           </div>
         </Card>
 
-        {error && <p className="mb-5 rounded-lg border border-loss/40 bg-loss/10 p-4 text-loss">{error}</p>}
+        {error && <p role="alert" className="mb-5 text-sm text-loss">{error}</p>}
         {loading ? (
-          <Card className="p-12 text-center text-muted">불러오는 중…</Card>
+          <p className="text-sm text-muted">불러오는 중…</p>
         ) : error ? null : rows.length === 0 ? (
-          <Card className="p-12 text-center text-muted">전적이 없습니다.</Card>
+          <Card className="px-5 py-10 text-center text-sm text-muted">전적이 없습니다.</Card>
         ) : (
           <Card className="overflow-hidden">
             <div className="overflow-x-auto">

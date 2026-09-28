@@ -41,20 +41,3 @@ export function removePlayer(roomId: number, playerId: number): Promise<void> {
   return apiFetch<void>(`/api/rooms/${roomId}/players/${playerId}`, { method: "DELETE" });
 }
 
-export function syncPlayers(roomId: number): Promise<Player[]> {
-  return apiFetch<Player[]>(`/api/rooms/${roomId}/players/sync`, {
-    method: "POST",
-  });
-}
-
-// TODO(B): apiFetch 로 구현
-export async function updateLanePool(
-  roomId: number,
-  playerId: number,
-  lanePool: Player["lanePool"],
-): Promise<Player> {
-  void roomId;
-  void playerId;
-  void lanePool;
-  throw new Error("미구현: PATCH /api/rooms/{roomId}/players/{playerId}");
-}

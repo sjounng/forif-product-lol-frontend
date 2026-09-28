@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Field, Input } from "@/components/ui/Field";
 import { useAuth } from "@/hooks/useAuth";
@@ -74,21 +75,21 @@ export default function RoomsPage() {
     }
   }
 
-  if (authLoading) return <main className="mx-auto w-full max-w-4xl px-6 py-12 text-sm text-muted">불러오는 중…</main>;
+  if (authLoading) return <main className="mx-auto w-full max-w-4xl px-6 py-10 text-sm text-muted">불러오는 중…</main>;
 
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
-      <div className="mb-8 flex items-end justify-between gap-4">
-        <h1 className="text-xl font-semibold">내전 그룹</h1>
-        {isLoggedIn && <Button variant="primary" onClick={() => setCreating((value) => !value)}>{creating ? "닫기" : "그룹 만들기"}</Button>}
-      </div>
+      <PageHeader
+        title="내전 그룹"
+        action={isLoggedIn && <Button variant="primary" size="sm" onClick={() => setCreating((value) => !value)}>{creating ? "닫기" : "그룹 만들기"}</Button>}
+      />
 
       {!creating && (
         <Card className="mb-7">
           <CardHeader title="그룹 코드로 참가" />
           <form className="flex gap-2 px-5 py-5" onSubmit={join}>
             <Input value={joinCode} onChange={(event) => setJoinCode(event.target.value)} placeholder="8자리 그룹 코드" maxLength={8} required />
-            <Button type="submit" variant="primary">입장</Button>
+            <Button type="submit" variant="primary" size="sm" className="h-10">입장</Button>
           </form>
         </Card>
       )}
@@ -96,7 +97,7 @@ export default function RoomsPage() {
       {error && <p role="alert" className="mb-5 text-sm text-loss">{error}</p>}
 
       {!isLoggedIn ? (
-        <Card className="px-5 py-10 text-center"><p className="text-sm text-muted">로그인이 필요합니다.</p></Card>
+        <Card className="px-5 py-10 text-center text-sm text-muted">로그인이 필요합니다.</Card>
       ) : (
         <>
           {creating && <CreateGroupCard onCreated={(room) => { setRooms((current) => [room, ...current]); setCreating(false); }} />}
@@ -114,8 +115,8 @@ export default function RoomsPage() {
             </Card>
           )}
 
-          {loading ? <p className="py-10 text-center text-sm text-muted">그룹을 불러오는 중…</p> : rooms.length === 0 ? (
-            <Card className="px-5 py-10 text-center"><p className="text-sm text-muted">참여 중인 그룹이 없습니다.</p></Card>
+          {loading ? <p className="text-sm text-muted">불러오는 중…</p> : rooms.length === 0 ? (
+            <Card className="px-5 py-10 text-center text-sm text-muted">참여 중인 그룹이 없습니다.</Card>
           ) : (
             <ul className="space-y-2">{rooms.map((room) => (
               <li key={room.id}><Link href={`/rooms/${room.id}`} className="flex items-center gap-4 rounded-[10px] border border-line bg-surface px-5 py-4 hover:border-dim">

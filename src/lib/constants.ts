@@ -1,4 +1,4 @@
-import type { FearlessMode, Lane, Tier } from "@/types";
+import type { FearlessMode, Lane, MatchFormat, SessionStatus, Tier } from "@/types";
 
 export const LANES: Lane[] = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"];
 
@@ -41,8 +41,17 @@ export const FEARLESS_LABEL: Record<FearlessMode, string> = {
   HARD_FEARLESS: "하드 피어리스",
 };
 
-export const FEARLESS_DESCRIPTION: Record<FearlessMode, string> = {
-  NONE: "이전 매치의 밴과 픽이 다음 매치에 영향을 주지 않습니다.",
-  GLOBAL_FEARLESS: "한 번 픽한 챔피언은 세션 내에서 다시 사용할 수 없습니다.",
-  HARD_FEARLESS: "픽과 밴에 사용된 모든 챔피언을 다음 매치에서 사용할 수 없습니다.",
+export const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
+  PREPARING: "준비 중",
+  PROPOSED: "수락 대기",
+  CONFIRMED: "확정",
+  IN_PROGRESS: "진행 중",
+  FINISHED: "종료",
+  CANCELLED: "취소",
+};
+
+export const MATCH_FORMAT_LABEL: Record<MatchFormat, string> = {
+  BEST_OF_3: "3판 2선승",
+  BEST_OF_5: "5판 3선승",
+  UNLIMITED: "제한 없음",
 };

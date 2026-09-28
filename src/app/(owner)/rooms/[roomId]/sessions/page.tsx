@@ -7,11 +7,12 @@ import { useRoom } from "@/components/group/RoomShell";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Checkbox } from "@/components/ui/Checkbox";
-import { Input } from "@/components/ui/Field";
+import { Field, Input } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { useAuth } from "@/hooks/useAuth";
-import { FEARLESS_LABEL, LANES, LANE_LABEL_KO } from "@/lib/constants";
+import { FEARLESS_LABEL, LANES, LANE_LABEL_KO, MATCH_FORMAT_LABEL, SESSION_STATUS_LABEL } from "@/lib/constants";
 import { LaneTag } from "@/components/ui/LaneTag";
 import { fetchGuests, fetchRoomMembers } from "@/lib/api/rooms";
 import { fetchPlayers } from "@/lib/api/players";
@@ -29,24 +30,10 @@ import type {
   Player,
   RoomMember,
   ScrimSession,
-  SessionStatus,
   Side,
 } from "@/types";
 
-const STATUS_LABEL: Record<SessionStatus, string> = {
-  PREPARING: "준비 중",
-  PROPOSED: "수락 대기",
-  CONFIRMED: "확정",
-  IN_PROGRESS: "진행 중",
-  FINISHED: "종료",
-  CANCELLED: "취소됨",
-};
 
-const MATCH_FORMAT_LABEL: Record<MatchFormat, string> = {
-  BEST_OF_3: "3판 2선승",
-  BEST_OF_5: "5판 3선승",
-  UNLIMITED: "제한 없음",
-};
 
 type RosterSelections = Record<Side, Record<Lane, string>>;
 
@@ -218,69 +205,62 @@ export default function SessionsPage() {
 
   return (
     <main className="px-8 py-8">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold tracking-tight">세션</h1>
-        {user && (
-          <Button
-            variant="primary"
-            size="sm"
-            disabled={Boolean(activeSession)}
-            onClick={() => void openCreate()}
-          >
-            {activeSession ? "활성 세션 있음" : "세션 제안"}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title="세션"
+        action={
+          user && (
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={Boolean(activeSession)}
+              onClick={() => void openCreate()}
+            >
+              {activeSession ? "활성 세션 있음" : "세션 제안"}
+            </Button>
+          )
+        }
+      />
 
-      {error && <p className="mb-5 text-sm text-loss">{error}</p>}
+      {error && <p role="alert" className="mb-5 text-sm text-loss">{error}</p>}
 
       {showCreate && (
         <Card className="mb-8">
           <CardHeader title="새 세션 제안" />
           <form onSubmit={handleCreate} className="space-y-6 px-5 py-5">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <label className="text-sm text-muted">
-                세션 이름
+              <Field label="세션 이름">
                 <Input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   maxLength={100}
                   placeholder="금요일 정기 내전"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                경기 방식
+              </Field>
+              <Field label="경기 방식">
                 <Select
                   value={matchFormat}
                   onChange={(value) => setMatchFormat(value as MatchFormat)}
                   options={Object.entries(MATCH_FORMAT_LABEL).map(([value, label]) => ({ value, label }))}
                   ariaLabel="경기 방식"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                피어리스 방식
+              </Field>
+              <Field label="피어리스 방식">
                 <Select
                   value={fearlessMode}
                   onChange={(value) => setFearlessMode(value as FearlessMode)}
                   options={Object.entries(FEARLESS_LABEL).map(([value, label]) => ({ value, label }))}
                   ariaLabel="피어리스 방식"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                내 진영
+              </Field>
+              <Field label="내 진영">
                 <Select
                   value={creatorSide}
                   onChange={(value) => setCreatorSide(value as Side)}
                   options={[{ value: "BLUE", label: "BLUE" }, { value: "RED", label: "RED" }]}
                   ariaLabel="내 진영"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                상대 팀장
+              </Field>
+              <Field label="상대 팀장">
                 <Select
                   value={opponentCaptainUserId}
                   onChange={setOpponentCaptainUserId}
@@ -297,9 +277,8 @@ export default function SessionsPage() {
                   ariaLabel="상대 팀장"
                   searchable
                   searchPlaceholder="이름 또는 Riot ID 검색"
-                  className="mt-2"
                 />
-              </label>
+              </Field>
             </div>
 
             <Checkbox
@@ -358,7 +337,7 @@ export default function SessionsPage() {
       )}
 
       {loading ? (
-        <p className="py-12 text-center text-sm text-muted">세션을 불러오는 중…</p>
+        <p className="text-sm text-muted">불러오는 중…</p>
       ) : sessions.length === 0 ? (
         <Card className="px-5 py-12 text-center">
           <p className="text-sm text-muted">아직 생성된 세션이 없습니다.</p>
@@ -377,11 +356,11 @@ export default function SessionsPage() {
                       {session.name ?? "이름 없는 세션"}
                     </span>
                     <Badge tone={session.status === "IN_PROGRESS" ? "gain" : "neutral"}>
-                      {STATUS_LABEL[session.status]}
+                      {SESSION_STATUS_LABEL[session.status]}
                     </Badge>
                   </div>
                   <p className="mt-1 text-xs text-dim">
-                    {new Date(session.createdAt).toLocaleString("ko-KR")}
+                    {new Date(session.createdAt).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
                   </p>
                 </div>
                 <Badge tone={session.fearlessMode === "NONE" ? "neutral" : "gold"}>

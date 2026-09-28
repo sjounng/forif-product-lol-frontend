@@ -130,9 +130,6 @@ export function DraftRail({
                   className="size-full"
                 />
               </div>
-              <p className="tabular mt-1 truncate text-center text-[7px] text-dim">
-                {lockedSourceLabel(champion)}
-              </p>
             </li>
           ))}
         </ul>

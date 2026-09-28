@@ -17,10 +17,7 @@ export function Sidebar({ roomId, roomName }: { roomId: number; roomName: string
   return (
     <>
       <aside className="hidden w-56 shrink-0 border-r border-line bg-bg font-sans md:block">
-        <div className="border-b border-line px-3 py-5">
-          <Link href="/rooms" className="text-sm text-muted hover:text-text">← 그룹 목록</Link>
-          <p className="mt-3 px-2 font-semibold leading-snug">{roomName}</p>
-        </div>
+        <p className="border-b border-line px-5 py-5 font-semibold leading-snug">{roomName}</p>
         <nav className="p-2">
           {NAV.map((item) => {
             const href = item.segment ? `${base}/${item.segment}` : base;
