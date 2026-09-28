@@ -397,7 +397,7 @@ export function DraftExperience({ draftId }: { draftId: string }) {
           <small className="section-label">{draft.session.name ?? "내전 세션"}</small>
           <strong className="text-sm tracking-[0.12em]">{STATUS_LABEL[draft.status]}</strong>
           <span className="tabular text-[9px] text-muted">
-            {draft.session.gameNo}번째 매치 · Draft #{draft.draftId}
+            {draft.session.gameNo}번째 매치
           </span>
         </section>
         <TeamHeader
@@ -599,10 +599,9 @@ export function DraftExperience({ draftId }: { draftId: string }) {
           )}
 
           {draft.status === "COMPLETED" && (
-            <DraftScreenMessage title="양 팀 선수 배정이 확정되었습니다.">
-              <p className="text-base text-muted">세션 화면으로 돌아가 경기를 시작할 수 있습니다.</p>
+            <DraftScreenMessage title="배정 완료">
               <Button variant="primary" onClick={() => router.back()}>
-                세션으로 나가기
+                세션으로
               </Button>
             </DraftScreenMessage>
           )}
@@ -630,7 +629,7 @@ export function DraftExperience({ draftId }: { draftId: string }) {
           {STATUS_LABEL[draft.status]}
         </span>
         <span>
-          {socketConnected ? "REALTIME CONNECTED" : "REALTIME RECONNECTING"} · VIEWER {draft.viewer.role} · VERSION {draft.version}
+          {socketConnected ? "CONNECTED" : "RECONNECTING"}
         </span>
         <span>{draft.session.fearlessMode}</span>
       </footer>
@@ -650,7 +649,7 @@ function ReadyPanel({
   return (
     <div className="flex h-full flex-col items-center justify-center gap-5 text-center">
       <span className="eyebrow">MATCH {draft.session.gameNo}</span>
-      <h1 className="text-2xl font-semibold">양 팀장의 READY를 기다립니다.</h1>
+      <h1 className="text-2xl font-semibold">READY 대기</h1>
       <div className="grid w-full max-w-md grid-cols-2 gap-3">
         {(["BLUE", "RED"] as Side[]).map((side) => (
           <div key={side} className="border border-line bg-surface px-4 py-4">
@@ -664,16 +663,14 @@ function ReadyPanel({
           </div>
         ))}
       </div>
-      {draft.viewer.canReady ? (
+      {draft.viewer.canReady && (
         <Button
           disabled={saving}
           onClick={onReady}
           variant="primary"
         >
-          {saving ? "처리 중" : "READY 확인"}
+          {saving ? "처리 중" : "READY"}
         </Button>
-      ) : (
-        <p className="text-xs text-muted">팀장 READY가 모두 완료되면 밴픽이 시작됩니다.</p>
       )}
     </div>
   );
@@ -693,16 +690,12 @@ function AssignmentPanel({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b border-line pb-3">
-        <span className="eyebrow">FINAL ASSIGNMENT</span>
-        <div className="mt-1 flex items-end justify-between gap-4">
-          <h2 className="text-lg font-semibold">선수별 챔피언을 최종 배정하세요.</h2>
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="text-lg font-semibold">선수 배정</h2>
           <span className="tabular text-[10px] text-muted">
             마감 {formatDeadline(draft.assignmentDeadlineAt)}
           </span>
         </div>
-        <p className="mt-1 text-[10px] text-dim">
-          이미 배정된 챔피언을 다른 선수에게 선택하면 두 선수의 챔피언이 교환됩니다.
-        </p>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto py-4">

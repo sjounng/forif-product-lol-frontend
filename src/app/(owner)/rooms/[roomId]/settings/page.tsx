@@ -86,31 +86,26 @@ export default function RoomSettingsPage() {
 
   return (
     <main className="px-8 py-8">
-      <div className="mb-8">
-        <p className="section-label mb-2">설정</p>
-        <h1 className="text-xl font-semibold tracking-tight">그룹 설정</h1>
-      </div>
+      <h1 className="mb-8 text-xl font-semibold tracking-tight">그룹 설정</h1>
 
       {error && <p className="mb-4 text-sm text-loss">{error}</p>}
       {message && <p className="mb-4 text-sm text-gain">{message}</p>}
 
       <div className="space-y-6">
         {canManage && <Card>
-          <CardHeader eyebrow="참가자에게 공유" title="초대 링크" />
+          <CardHeader title="초대 링크" />
           <div className="space-y-4 px-5 py-5">
-            <Field label="링크" hint="코드를 재발급하면 이전 링크의 신규 입장이 차단됩니다.">
-              {/* Input 이 w-full 이라 Button 을 shrink-0 로 막지 않으면 글자 폭 아래로 찌그러져 세로로 쌓인다 */}
-              <div className="flex gap-2">
-                <Input readOnly value={entryUrl} className="tabular min-w-0 text-[13px]" />
-                <Button
-                  type="button"
-                  className="shrink-0 whitespace-nowrap"
-                  onClick={() => void navigator.clipboard.writeText(entryUrl)}
-                >
-                  복사
-                </Button>
-              </div>
-            </Field>
+            {/* Input 이 w-full 이라 Button 을 shrink-0 로 막지 않으면 글자 폭 아래로 찌그러져 세로로 쌓인다 */}
+            <div className="flex gap-2">
+              <Input readOnly value={entryUrl} className="tabular min-w-0 text-[13px]" />
+              <Button
+                type="button"
+                className="shrink-0 whitespace-nowrap"
+                onClick={() => void navigator.clipboard.writeText(entryUrl)}
+              >
+                복사
+              </Button>
+            </div>
             <Button type="button" variant="danger" size="sm" onClick={() => setConfirmAction("rotate")}>
               공개 코드 재발급
             </Button>
@@ -118,7 +113,7 @@ export default function RoomSettingsPage() {
         </Card>}
 
         {canManage && <Card>
-          <CardHeader eyebrow="그룹 정보" title="이름·설명·입장 정책" />
+          <CardHeader title="그룹 정보" />
           <form className="space-y-4 px-5 py-5" onSubmit={save}>
             {/* 페이지가 전체 폭이 되면서 입력창이 화면 끝까지 늘어지므로 2열로 배치한다 */}
             <div className="grid gap-4 md:grid-cols-2">
@@ -128,11 +123,14 @@ export default function RoomSettingsPage() {
               <Field label="설명">
                 <Input name="description" defaultValue={room.description ?? ""} maxLength={500} />
               </Field>
-              <Field
-                label="새 입장 암호"
-                hint={room.entryPasswordProtected ? "현재 암호를 바꾸려면 새 암호를 입력하세요." : "비워 두면 암호를 사용하지 않습니다."}
-              >
-                <Input name="entryPassword" type="password" minLength={4} maxLength={72} />
+              <Field label="새 입장 암호">
+                <Input
+                  name="entryPassword"
+                  type="password"
+                  minLength={4}
+                  maxLength={72}
+                  placeholder={room.entryPasswordProtected ? "비워 두면 유지" : "선택"}
+                />
               </Field>
               <Checkbox
                 name="guestAdmissionEnabled"
@@ -153,12 +151,13 @@ export default function RoomSettingsPage() {
           </form>
         </Card>}
 
-        <Card className="border-loss/30">
-          <CardHeader eyebrow="주의" title={room.myRole === "GROUP_OWNER" ? "그룹 삭제" : "그룹 탈퇴"} />
-          <div className="px-5 py-5">
-            <p className="mb-4 text-sm leading-relaxed text-muted">{room.myRole === "GROUP_OWNER" ? "그룹을 보관 상태로 전환해 더 이상 접근하거나 참가할 수 없게 합니다." : "탈퇴하면 참가자 목록에서 사라지고 다시 초대받기 전에는 그룹에 접근할 수 없습니다."}</p>
-            <Button variant="danger" onClick={() => setConfirmAction("leave")}>{room.myRole === "GROUP_OWNER" ? "그룹 삭제" : "그룹 탈퇴"}</Button>
-          </div>
+        <Card className="flex items-center justify-between gap-4 border-loss/30 px-5 py-4">
+          <h2 className="text-[15px] font-semibold tracking-tight">
+            {room.myRole === "GROUP_OWNER" ? "그룹 삭제" : "그룹 탈퇴"}
+          </h2>
+          <Button variant="danger" size="sm" onClick={() => setConfirmAction("leave")}>
+            {room.myRole === "GROUP_OWNER" ? "삭제" : "탈퇴"}
+          </Button>
         </Card>
       </div>
       <Dialog

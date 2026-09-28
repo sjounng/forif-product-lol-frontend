@@ -10,7 +10,7 @@ import { Card, CardHeader } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { Dialog, TextPromptDialog } from "@/components/ui/Dialog";
 import { championSquareUrl } from "@/lib/champion-art";
-import { FEARLESS_DESCRIPTION, FEARLESS_LABEL } from "@/lib/constants";
+import { FEARLESS_LABEL } from "@/lib/constants";
 import { LaneTag } from "@/components/ui/LaneTag";
 import { TeamBoard } from "@/components/session/TeamBoard";
 import {
@@ -336,8 +336,8 @@ export default function SessionDetailPage() {
             </Badge>
           </div>
           <p className="mt-2 text-xs text-dim">
-            {MATCH_FORMAT_LABEL[session.matchFormat]} ·{" "}
-            {session.ratingEnabled ? "점수 반영" : "점수 미반영"}
+            {MATCH_FORMAT_LABEL[session.matchFormat]} · {FEARLESS_LABEL[session.fearlessMode]}
+            {session.ratingEnabled ? "" : " · 점수 미반영"}
           </p>
         </div>
         <div className="flex items-center gap-4 rounded-lg border border-line bg-surface px-5 py-3">
@@ -369,12 +369,8 @@ export default function SessionDetailPage() {
 
       {session.viewer.canReview && (
         <Card className="mb-6 border-gold/30">
-          <CardHeader eyebrow="팀장 합의" title="세션 제안을 검토해 주세요" />
+          <CardHeader title="세션 제안" />
           <div className="space-y-4 px-5 py-5">
-            <p className="text-sm text-muted">
-              수락하면 양 팀 구성, 기본 라인, 경기 방식과 피어리스 규칙이
-              확정됩니다.
-            </p>
             <label className="block text-xs text-muted">
               거절 사유 (선택)
               <input
@@ -406,29 +402,7 @@ export default function SessionDetailPage() {
         </Card>
       )}
 
-      <div className="mb-6 grid min-w-0 gap-6 xl:grid-cols-[1fr_1.4fr]">
-        <Card>
-          <CardHeader eyebrow="규칙" title="세션 설정" />
-          <dl className="space-y-4 px-5 py-5 text-sm">
-            <div>
-              <dt className="section-label mb-1">경기 방식</dt>
-              <dd>{MATCH_FORMAT_LABEL[session.matchFormat]}</dd>
-            </div>
-            <div>
-              <dt className="section-label mb-1">피어리스</dt>
-              <dd>{FEARLESS_LABEL[session.fearlessMode]}</dd>
-              <p className="mt-1 text-xs text-dim">
-                {FEARLESS_DESCRIPTION[session.fearlessMode]}
-              </p>
-            </div>
-            <div>
-              <dt className="section-label mb-1">완료 매치</dt>
-              <dd className="tabular">{session.gameCount}</dd>
-            </div>
-          </dl>
-        </Card>
-
-        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+      <div className="mb-6 grid min-w-0 gap-4 sm:grid-cols-2">
           {(["BLUE", "RED"] as Side[]).map((side) => {
             const team = session.teams.find((value) => value.side === side);
             return (
@@ -442,13 +416,10 @@ export default function SessionDetailPage() {
               />
             );
           })}
-        </div>
       </div>
 
       <Card className="mb-6">
         <CardHeader
-          eyebrow="match-v1"
-          mono
           title="경기 전적"
           action={
             <div className="flex flex-wrap justify-end gap-2">
@@ -504,8 +475,7 @@ export default function SessionDetailPage() {
                   {overview.pendingStartRequest.gameNo}경기 시작 합의 대기
                 </p>
                 <p className="mt-1 text-xs text-dim">
-                  {overview.pendingStartRequest.proposedBy.displayName} 팀장이
-                  요청했습니다. · BLUE {overview.pendingStartRequest.blueTeamName} / RED{" "}
+                  {overview.pendingStartRequest.proposedBy.displayName} 요청 · BLUE {overview.pendingStartRequest.blueTeamName} / RED{" "}
                   {overview.pendingStartRequest.redTeamName}
                 </p>
               </div>
@@ -565,8 +535,7 @@ export default function SessionDetailPage() {
 
         {overview.matches.length === 0 ? (
           <p className="px-5 py-10 text-center text-sm text-muted">
-            아직 생성된 매치가 없습니다. 세션 확정 후 한 팀장이 시작을
-            요청하고 상대 팀장이 수락해야 합니다.
+            아직 매치가 없습니다.
           </p>
         ) : (
           <ul>
@@ -593,16 +562,11 @@ export default function SessionDetailPage() {
                         {MATCH_STATUS_LABEL[match.status]}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-xs text-dim">
-                      {match.status === "COMPLETED" && match.winnerSide
-                        ? `${matchWinnerName(match, match.winnerSide)} 승리`
-                        : match.status === "RESULT_PENDING" &&
-                            match.proposedWinnerSide
-                          ? `${matchWinnerName(match, match.proposedWinnerSide)} 승리 확인 대기`
-                          : match.draftId
-                            ? `Draft #${match.draftId} 생성 완료`
-                            : "Draft 생성 대기"}
-                    </p>
+                    {match.status === "COMPLETED" && match.winnerSide ? (
+                      <p className="mt-1 text-xs text-dim">{matchWinnerName(match, match.winnerSide)} 승리</p>
+                    ) : match.status === "RESULT_PENDING" && match.proposedWinnerSide ? (
+                      <p className="mt-1 text-xs text-dim">{matchWinnerName(match, match.proposedWinnerSide)} 승리 확인 대기</p>
+                    ) : null}
                     <p className="mt-1 text-[10px] text-dim">
                       BLUE {match.blueTeamName} · RED {match.redTeamName}
                     </p>
@@ -709,7 +673,7 @@ export default function SessionDetailPage() {
                         <p className="mt-1 text-xs text-dim">
                           {resultEntry.winnerSide === "BLUE"
                             ? match.blueTeamName
-                            : match.redTeamName} 승리 · 참가자 10명의 K/D/A
+                            : match.redTeamName} 승리
                         </p>
                       </div>
                       <button
@@ -820,12 +784,8 @@ export default function SessionDetailPage() {
         </button>
       )}
 
-      <div className="flex items-center justify-between border-t border-line-soft pt-5">
-        <p className="text-xs text-dim">
-          매치는 한 팀장이 시작을 요청하고 상대 팀장이 수락해야 생성됩니다.
-          결과도 같은 방식으로 상대 팀장의 확인을 거쳐 확정됩니다.
-        </p>
-        {session.viewer.canCancel && (
+      {session.viewer.canCancel && (
+        <div className="flex justify-end border-t border-line-soft pt-5">
           <Button
             variant="danger"
             size="sm"
@@ -834,12 +794,12 @@ export default function SessionDetailPage() {
           >
             세션 취소
           </Button>
-        )}
-      </div>
+        </div>
+      )}
       <Dialog
         open={resultConfirmation !== null}
         title="경기 결과를 제안할까요?"
-        description={resultConfirmation ? `${resultConfirmation.match.gameNo}경기를 ${resultConfirmation.winnerName} 승리로 제안합니다. 양 팀의 확인 후 전적에 반영됩니다.` : undefined}
+        description={resultConfirmation ? `${resultConfirmation.match.gameNo}경기를 ${resultConfirmation.winnerName} 승리로 제안합니다.` : undefined}
         confirmLabel="결과 제안"
         pending={saving}
         onClose={() => setResultConfirmation(null)}
@@ -848,7 +808,6 @@ export default function SessionDetailPage() {
       <TextPromptDialog
         open={renameSide !== null}
         title="팀 이름 변경"
-        description="세션과 경기 전적에 표시할 팀 이름을 입력해 주세요."
         value={teamNameDraft}
         onValueChange={setTeamNameDraft}
         maxLength={30}
@@ -883,13 +842,7 @@ function MatchDraftHistory({ match }: { match: SessionMatch }) {
   return (
     <section className="mt-4 border-t border-line-soft pt-4">
       <div className="mb-3 flex items-end justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium">밴픽 기록</p>
-          <p className="mt-1 text-[10px] text-dim">
-            실제 진행 순서 · {actions.length}개 액션
-          </p>
-        </div>
-        <span className="text-[10px] text-dim">BAN은 회색으로 표시됩니다</span>
+        <p className="text-sm font-medium">밴픽 기록</p>
       </div>
 
       <div className="space-y-3">

@@ -39,13 +39,7 @@ export default function SignupPage() {
 
   return (
     <>
-      <div className="mb-8">
-        <p className="section-label mb-2">내전하냥</p>
-        <h1 className="text-2xl font-semibold tracking-tight">회원가입</h1>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted">
-          그룹을 만들고 팀장으로 활동할 계정을 만듭니다.
-        </p>
-      </div>
+      <h1 className="mb-8 text-2xl font-semibold tracking-tight">회원가입</h1>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <Field label="이메일">
@@ -54,8 +48,8 @@ export default function SignupPage() {
         <Field label="표시 이름">
           <Input type="text" name="displayName" maxLength={50} required />
         </Field>
-        <Field label="비밀번호" hint="8자 이상">
-          <Input type="password" name="password" autoComplete="new-password" minLength={8} required />
+        <Field label="비밀번호">
+          <Input type="password" name="password" autoComplete="new-password" minLength={8} placeholder="8자 이상" required />
         </Field>
         {error && <p className="text-sm text-loss">{error}</p>}
         <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
@@ -63,9 +57,8 @@ export default function SignupPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-muted">
-        이미 계정이 있나요?{" "}
-        <Link href="/login" className="text-gold hover:underline">
+      <p className="mt-6 text-center text-[13px]">
+        <Link href="/login" className="text-muted hover:text-text">
           로그인
         </Link>
       </p>

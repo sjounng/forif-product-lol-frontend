@@ -49,11 +49,6 @@ export default function RoomOverviewPage() {
     { label: "참가자", value: `${room.participantCount}명` },
     { label: "누적 세션", value: `${room.sessionCount}회` },
     { label: "누적 매치", value: `${room.matchCount}경기` },
-    {
-      label: "게스트 입장 허용",
-      value: room.guestAdmissionEnabled ? "허용" : "차단",
-      positive: room.guestAdmissionEnabled,
-    },
   ];
 
   return (
@@ -66,37 +61,19 @@ export default function RoomOverviewPage() {
               <h1 className="truncate text-2xl font-semibold tracking-tight">{room.name}</h1>
               <Badge>{room.publicCode}</Badge>
             </div>
-            <p className="mt-3 max-w-2xl text-base text-muted">
-              {room.description ?? "세션과 참가자 전적을 한곳에서 관리하는 스크림 그룹입니다."}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link href={`/rooms/${room.id}/players`}>
-              <Button size="sm">참가자 보기</Button>
-            </Link>
-            <Link href={`/rooms/${room.id}/sessions`}>
-              <Button variant="primary" size="sm">세션 보기</Button>
-            </Link>
+            {room.description && (
+              <p className="mt-3 max-w-2xl text-base text-muted">{room.description}</p>
+            )}
           </div>
         </div>
       </section>
 
-      <section className="mb-7 grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <section className="mb-7 grid grid-cols-3 gap-3">
         {metrics.map((metric) => (
           <Card key={metric.label} className="relative overflow-hidden px-5 py-5">
             <p className="font-medium text-muted">{metric.label}</p>
             <div className="mt-3">
-              <strong
-                className={`text-3xl font-semibold ${
-                  metric.positive === true
-                    ? "text-gain"
-                    : metric.positive === false
-                      ? "text-loss"
-                      : "text-text"
-                }`}
-              >
-                {metric.value}
-              </strong>
+              <strong className="text-3xl font-semibold text-text">{metric.value}</strong>
             </div>
           </Card>
         ))}
@@ -129,7 +106,7 @@ export default function RoomOverviewPage() {
               </div>
             ) : (
               <div className="py-4 text-center">
-                <p className="text-base text-muted">현재 진행 중인 세션이 없습니다.</p>
+                <p className="text-base text-muted">진행 중인 세션이 없습니다.</p>
                 <Link href={`/rooms/${room.id}/sessions`} className="mt-4 inline-block">
                   <Button variant="primary" size="sm">새 세션 준비하기</Button>
                 </Link>
@@ -173,10 +150,6 @@ export default function RoomOverviewPage() {
             <div className="flex items-center justify-between gap-4 py-4">
               <dt className="text-muted">입장 비밀번호</dt>
               <dd>{room.entryPasswordProtected ? "사용 중" : "사용 안 함"}</dd>
-            </div>
-            <div className="flex items-center justify-between gap-4 py-4">
-              <dt className="text-muted">그룹 상태</dt>
-              <dd><Badge tone="gain">활성</Badge></dd>
             </div>
           </dl>
         </Card>

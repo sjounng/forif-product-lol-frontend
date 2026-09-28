@@ -75,14 +75,14 @@ export default function LeaderboardPage() {
 
   return (
     <main className="px-8 py-8">
-      {canManage && (
-        <div className="mb-4 flex justify-end">
+      <div className="mb-8 flex items-center justify-between gap-4">
+        <h1 className="text-xl font-semibold">그룹 레이팅</h1>
+        {canManage && (
           <Button size="sm" onClick={() => void handleSync()} disabled={syncing || players.length === 0}>
             {syncing ? "Riot 동기화 중…" : "솔로랭크 새로고침"}
           </Button>
-        </div>
-      )}
-      <div className="mb-8"><p className="section-label mb-2">랭킹</p><h1 className="text-xl font-semibold">그룹 레이팅</h1><p className="mt-2 text-[13px] text-muted">솔로랭크 점수로 시작해, 내전 결과가 확정될 때마다 레이팅이 갱신됩니다. 점수 반영을 끈 세션의 경기는 레이팅에 영향을 주지 않습니다.</p></div>
+        )}
+      </div>
       {error && <p className="mb-5 text-sm text-loss">{error}</p>}
       {syncNotice && <p className="mb-5 text-sm text-gain">{syncNotice}</p>}
       <Card className="overflow-x-auto">

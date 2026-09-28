@@ -220,13 +220,10 @@ export default function PlayersPage() {
 
   return (
     <main className="px-8 py-8">
-      <div className="mb-8">
-        <p className="section-label mb-2">참가자</p>
-        <h1 className="text-xl font-semibold tracking-tight">
-          회원 {members.length}명 · Riot ID {riotPlayers.filter((player) => player.memberUserId === null).length}명
-          {canManage ? ` · 게스트 ${guests.length}명` : ""}
-        </h1>
-      </div>
+      <h1 className="mb-8 text-xl font-semibold tracking-tight">
+        회원 {members.length}명 · Riot ID {riotPlayers.filter((player) => player.memberUserId === null).length}명
+        {canManage ? ` · 게스트 ${guests.length}명` : ""}
+      </h1>
 
       {error && (
         <p role="alert" className="mb-5 text-sm text-loss">
@@ -239,7 +236,7 @@ export default function PlayersPage() {
         <Input
           value={participantQuery}
           onChange={(event) => setParticipantQuery(event.target.value)}
-          placeholder="이름 또는 Riot ID로 참가자 검색"
+          placeholder="검색"
           className="h-11 border-0 bg-transparent px-0 focus:border-0"
         />
         {participantQuery && (
@@ -266,10 +263,7 @@ export default function PlayersPage() {
         <div className="space-y-6">
           {canManage && (
             <Card>
-              <CardHeader
-                eyebrow="비회원 바로 추가"
-                title="Riot ID로 참가자 등록"
-              />
+              <CardHeader title="Riot ID 추가" />
               <form
                 onSubmit={handleAddPlayer}
                 className="grid items-end gap-4 px-5 py-5 md:grid-cols-[minmax(0,1fr)_minmax(160px,0.45fr)_auto]"
@@ -306,15 +300,11 @@ export default function PlayersPage() {
                   {adding ? "Riot 확인 중…" : "그룹에 추가"}
                 </Button>
               </form>
-              <p className="border-t border-line-soft px-5 py-3 text-xs text-dim">
-                Riot에서 계정 존재 여부를 확인한 뒤 비회원 참가자로 즉시
-                등록합니다. 입력 예: Hide on bush # KR1
-              </p>
             </Card>
           )}
 
           <Card>
-            <CardHeader eyebrow="Riot 계정" title="비회원 참가자" />
+            <CardHeader title="비회원 참가자" />
             {visibleRiotPlayers.length === 0 ? (
               <p className="px-5 py-8 text-center text-sm text-muted">
                 {normalizedQuery ? "검색된 Riot ID 참가자가 없습니다." : "등록된 Riot ID 참가자가 없습니다."}
@@ -344,7 +334,7 @@ export default function PlayersPage() {
           </Card>
 
           <Card>
-            <CardHeader eyebrow="로그인 계정" title="회원" />
+            <CardHeader title="회원" />
             {visibleMembers.length === 0 ? (
               <p className="px-5 py-8 text-center text-sm text-muted">검색된 회원이 없습니다.</p>
             ) : <ul>
@@ -386,7 +376,7 @@ export default function PlayersPage() {
 
           {canManage && (
             <Card>
-              <CardHeader eyebrow="초대 링크 입장" title="게스트" />
+              <CardHeader title="게스트" />
               {visibleGuests.length === 0 ? (
                 <p className="px-5 py-8 text-center text-sm text-muted">
                   {normalizedQuery ? "검색된 게스트가 없습니다." : "입장한 게스트가 없습니다."}

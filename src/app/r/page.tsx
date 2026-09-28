@@ -26,21 +26,16 @@ export default function JoinPage() {
       <NavBar />
       <main className="flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-sm">
-          <div className="mb-8">
-            <p className="section-label mb-2">참가</p>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              그룹 코드로 입장
-            </h1>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted">
-              초대 링크 끝의 공개 코드로 게스트 입장 화면을 엽니다.
-            </p>
-          </div>
+          <h1 className="mb-8 text-2xl font-semibold tracking-tight">
+            그룹 코드로 입장
+          </h1>
           <form className="space-y-4" onSubmit={submit}>
-            <Field label="그룹 코드" hint="8자리입니다. 예: K7QM2XPA">
+            <Field label="그룹 코드">
               <Input
                 name="publicCode"
                 maxLength={8}
                 autoComplete="off"
+                placeholder="K7QM2XPA"
                 className="tabular uppercase"
                 required
               />

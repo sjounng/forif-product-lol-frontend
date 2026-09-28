@@ -79,32 +79,31 @@ export default function RoomsPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
       <div className="mb-8 flex items-end justify-between gap-4">
-        <div><p className="section-label mb-2">그룹</p><h1 className="text-xl font-semibold">내전 그룹</h1></div>
+        <h1 className="text-xl font-semibold">내전 그룹</h1>
         {isLoggedIn && <Button variant="primary" onClick={() => setCreating((value) => !value)}>{creating ? "닫기" : "그룹 만들기"}</Button>}
       </div>
 
       {!creating && (
         <Card className="mb-7">
-          <CardHeader eyebrow="초대받았나요?" title="그룹 코드로 참가" />
+          <CardHeader title="그룹 코드로 참가" />
           <form className="flex gap-2 px-5 py-5" onSubmit={join}>
             <Input value={joinCode} onChange={(event) => setJoinCode(event.target.value)} placeholder="8자리 그룹 코드" maxLength={8} required />
             <Button type="submit" variant="primary">입장</Button>
           </form>
-          {!isLoggedIn && <p className="border-t border-line-soft px-5 py-3 text-xs text-dim">로그인하지 않아도 닉네임과 그룹 코드로 참가할 수 있습니다.</p>}
         </Card>
       )}
 
       {error && <p role="alert" className="mb-5 text-sm text-loss">{error}</p>}
 
       {!isLoggedIn ? (
-        <Card className="px-5 py-10 text-center"><p className="text-sm text-muted">내 그룹을 만들고 관리하려면 로그인해 주세요.</p></Card>
+        <Card className="px-5 py-10 text-center"><p className="text-sm text-muted">로그인이 필요합니다.</p></Card>
       ) : (
         <>
           {creating && <CreateGroupCard onCreated={(room) => { setRooms((current) => [room, ...current]); setCreating(false); }} />}
 
           {invitations.length > 0 && (
             <Card className="mb-7">
-              <CardHeader eyebrow="받은 요청" title="그룹 초대" />
+              <CardHeader title="그룹 초대" />
               <ul>{invitations.map((invitation) => (
                 <li key={invitation.id} className="flex items-center gap-3 border-b border-line-soft px-5 py-4 last:border-0">
                   <div className="min-w-0 flex-1"><p className="text-sm font-medium">{invitation.roomName}</p><p className="mt-1 text-xs text-dim">{invitation.inviter.displayName} 님의 초대</p></div>
@@ -120,7 +119,7 @@ export default function RoomsPage() {
           ) : (
             <ul className="space-y-2">{rooms.map((room) => (
               <li key={room.id}><Link href={`/rooms/${room.id}`} className="flex items-center gap-4 rounded-[10px] border border-line bg-surface px-5 py-4 hover:border-dim">
-                <div className="min-w-0 flex-1"><p className="truncate text-[15px] font-medium">{room.name}</p><p className="mt-1 truncate text-xs text-dim">{room.description ?? "설명 없음"}</p></div>
+                <div className="min-w-0 flex-1"><p className="truncate text-[15px] font-medium">{room.name}</p>{room.description && <p className="mt-1 truncate text-xs text-dim">{room.description}</p>}</div>
                 <Badge tone="gold">{ROLE_LABEL[room.myRole]}</Badge><span className="text-xs text-muted">{room.participantCount}명</span><Badge>{room.publicCode}</Badge>
               </Link></li>
             ))}</ul>
@@ -151,11 +150,11 @@ function CreateGroupCard({ onCreated }: { onCreated(room: Room): void }) {
     } finally { setSaving(false); }
   }
   return (
-    <Card className="mb-7"><CardHeader eyebrow="새 그룹" title="기본 정보" />
+    <Card className="mb-7"><CardHeader title="새 그룹" />
       <form className="space-y-4 px-5 py-5" onSubmit={submit}>
         <Field label="그룹 이름"><Input name="name" maxLength={100} required /></Field>
         <Field label="설명"><Input name="description" maxLength={500} /></Field>
-        <Field label="선택 입장 암호" hint="비워두면 초대 링크와 코드만으로 입장합니다."><Input name="entryPassword" type="password" minLength={4} maxLength={72} /></Field>
+        <Field label="입장 암호 (선택)"><Input name="entryPassword" type="password" minLength={4} maxLength={72} /></Field>
         <div className="pb-2 pt-1">
           <Checkbox name="guestAdmissionEnabled" defaultChecked>비회원 입장 허용</Checkbox>
         </div>

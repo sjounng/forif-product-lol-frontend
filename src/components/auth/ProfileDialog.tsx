@@ -69,16 +69,13 @@ export function ProfileDialog({ open, onClose }: { open: boolean; onClose(): voi
         onMouseDown={(event) => event.stopPropagation()}
       >
         <header className="flex items-center justify-between border-b border-line px-5 py-4">
-          <div>
-            <p className="section-label">계정</p>
-            <h2 className="mt-1 text-lg font-semibold">회원정보</h2>
-          </div>
+          <h2 className="text-lg font-semibold">회원정보</h2>
           <Button variant="ghost" size="sm" onClick={onClose} aria-label="닫기">닫기</Button>
         </header>
 
         <div className="space-y-6 px-5 py-5">
           <form className="space-y-3" onSubmit={saveName}>
-            <Field label="사이트 닉네임">
+            <Field label="닉네임">
               <Input value={displayName} onChange={(event) => setDisplayName(event.target.value)} maxLength={50} required />
             </Field>
             <p className="text-xs text-dim">{user.email}</p>
@@ -110,7 +107,6 @@ export function ProfileDialog({ open, onClose }: { open: boolean; onClose(): voi
                 {linking ? "확인 중…" : profile?.riotAccount ? "다시 연동" : "연동"}
               </Button>
             </form>
-            <p className="mt-2 text-xs leading-relaxed text-dim">연동 시 솔로랭크 티어·전적과 최근 솔로랭크 포지션을 함께 갱신합니다.</p>
           </div>
 
           {error && <p role="alert" className="text-sm text-loss">{error}</p>}
