@@ -8,7 +8,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { fetchPlayers } from "@/lib/api/players";
 import type { Player } from "@/types";
 
-const COLUMNS = "grid-cols-[68px_minmax(200px,1fr)_140px_120px]";
+// 모바일에선 전적을 숨기고 순위·이름·레이팅만 둔다 — 최소 폭을 두면 레이팅이 화면 밖으로 밀린다
+const COLUMNS = "grid-cols-[32px_minmax(0,1fr)_72px] sm:grid-cols-[68px_minmax(0,1fr)_140px_120px]";
 
 export default function LeaderboardPage() {
   const params = useParams<{ roomId: string }>();
@@ -37,39 +38,37 @@ export default function LeaderboardPage() {
         <Card className="px-5 py-10 text-center text-sm text-muted">등록된 참가자가 없습니다.</Card>
       ) : (
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <div className="min-w-[560px]">
-              <div className={`grid ${COLUMNS} items-center border-b border-line bg-raised/60 px-4 py-3 text-sm text-muted`}>
-                <span>순위</span>
-                <span>이름</span>
-                <span className="text-right">전적</span>
-                <span className="text-right">레이팅</span>
-              </div>
-              <ol>
-                {sorted.map((player, index) => (
-                  <li
-                    key={player.id}
-                    className={`grid ${COLUMNS} items-center border-b border-line-soft px-4 py-3 last:border-0`}
-                  >
-                    <span className="tabular text-sm text-gold">{index + 1}</span>
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="truncate text-sm">{player.displayName}</span>
-                      <LanePreferenceIcons
-                        primary={player.primaryLane === "FILL" ? null : player.primaryLane}
-                        secondary={player.secondaryLane === "FILL" ? null : player.secondaryLane}
-                      />
-                    </div>
-                    <span className="tabular text-right text-sm text-muted">
-                      {player.gamesPlayed ? `${player.wins}승 ${player.losses}패` : "—"}
-                    </span>
-                    <span className="tabular text-right text-sm text-gold">
-                      {player.rating.toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </div>
+          <div className={`grid ${COLUMNS} items-center gap-2 border-b border-line bg-raised/60 px-4 py-3 text-sm text-muted`}>
+            <span>순위</span>
+            <span>이름</span>
+            <span className="hidden text-right sm:block">전적</span>
+            <span className="text-right">레이팅</span>
           </div>
+          <ol>
+            {sorted.map((player, index) => (
+              <li
+                key={player.id}
+                className={`grid ${COLUMNS} items-center gap-2 border-b border-line-soft px-4 py-3 last:border-0`}
+              >
+                <span className="tabular text-sm text-gold">{index + 1}</span>
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="truncate text-sm">{player.displayName}</span>
+                  <span className="hidden sm:contents">
+                    <LanePreferenceIcons
+                      primary={player.primaryLane === "FILL" ? null : player.primaryLane}
+                      secondary={player.secondaryLane === "FILL" ? null : player.secondaryLane}
+                    />
+                  </span>
+                </div>
+                <span className="tabular hidden text-right text-sm text-muted sm:block">
+                  {player.gamesPlayed ? `${player.wins}승 ${player.losses}패` : "—"}
+                </span>
+                <span className="tabular text-right text-sm text-gold">
+                  {player.rating.toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ol>
         </Card>
       )}
     </main>

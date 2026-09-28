@@ -56,14 +56,16 @@ export default function RoomOverviewPage() {
         {room.description && <p className="mt-2 text-sm text-muted">{room.description}</p>}
       </PageHeader>
 
-      <section className="mb-6 grid grid-cols-3 gap-3">
+      <Card className="mb-6 grid grid-cols-3 divide-x divide-line-soft">
         {metrics.map((metric) => (
-          <Card key={metric.label} className="px-5 py-5">
-            <p className="text-sm text-muted">{metric.label}</p>
-            <strong className="mt-3 block text-3xl font-semibold">{metric.value}</strong>
-          </Card>
+          <div key={metric.label} className="min-w-0 px-4 py-4 sm:px-5 sm:py-5">
+            <p className="whitespace-nowrap text-xs text-muted sm:text-sm">{metric.label}</p>
+            <strong className="mt-2 block whitespace-nowrap text-xl font-semibold sm:mt-3 sm:text-3xl">
+              {metric.value}
+            </strong>
+          </div>
         ))}
-      </section>
+      </Card>
 
       <Card>
         <CardHeader title="진행 중인 세션" />

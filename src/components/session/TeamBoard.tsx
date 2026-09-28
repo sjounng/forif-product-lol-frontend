@@ -28,7 +28,7 @@ export function TeamBoard({
                 팀명 변경
               </Button>
             )}
-            <span className="text-xs text-dim">
+            <span className="whitespace-nowrap text-xs text-dim">
               팀장 {team?.captain.displayName ?? "—"}
             </span>
           </div>

@@ -263,9 +263,7 @@ export function DraftExperience({ draftId }: { draftId: string }) {
     [runMutation],
   );
 
-  // 배정·완료·중단 이후엔 진행 중인 턴이 없다. 마지막 스텝을 계속 "현재 턴"으로 두면
-  // 끝난 밴픽에서도 타이머와 NOW PLAYING 강조가 남는다.
-  const turnOver = !draft || ["ASSIGNING", "COMPLETED", "ABORTED"].includes(draft.status);
+  const turnOver = !draft || isTurnOver(draft);
   const currentStep = turnOver ? null : draft.steps.find((step) => step.stepNo === draft.currentStep) ?? null;
   const nextStep = turnOver ? null : draft.steps.find((step) => step.stepNo === draft.currentStep + 1) ?? null;
   const currentActor = draft && currentStep ? turnActor(draft, currentStep.stepNo) : null;
@@ -402,7 +400,7 @@ export function DraftExperience({ draftId }: { draftId: string }) {
           <span className="tabular text-[10px] text-muted">
             {draft.session.gameNo}번째 매치 · {FEARLESS_LABEL[draft.session.fearlessMode]}
           </span>
-          {!socketConnected && <span className="text-[10px] text-loss">재연결 중…</span>}
+          {!socketConnected && <span className="text-[10px] text-dim">연결 중…</span>}
         </section>
         <TeamHeader
           side="RED"
@@ -838,7 +836,16 @@ function activePickIndices(draft: DraftState, side: Side, picks: PickSlot[]) {
     .filter((index) => index < picks.length);
 }
 
+/**
+ * 배정·완료·중단 이후엔 진행 중인 턴이 없다. 서버의 currentStep 은 마지막 스텝(20)에 머물러 있어서
+ * 그대로 쓰면 끝난 밴픽에서도 타이머·NOW PLAYING·마지막 픽 슬롯 강조가 남는다.
+ */
+function isTurnOver(draft: DraftState) {
+  return draft.status === "ASSIGNING" || draft.status === "COMPLETED" || draft.status === "ABORTED";
+}
+
 function activeTurnSteps(draft: DraftState) {
+  if (isTurnOver(draft)) return [];
   const currentIndex = draft.steps.findIndex(
     (step) => step.stepNo === draft.currentStep,
   );
