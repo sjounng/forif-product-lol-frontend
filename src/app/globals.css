@@ -102,13 +102,26 @@
 }
 
 @layer components {
-  /* 섹션 위 작은 라벨. 대문자 모노 + 넓은 자간 = 계기판 눈금 톤 */
+  /*
+   * 영문 기계 라벨 전용. 대문자 모노 + 넓은 자간 = 계기판 눈금 톤.
+   * LOCKED / MATCH 3 / TEAM A / session-v1 / 입장 코드처럼 원래 대문자로 읽히는 것에만 쓴다.
+   * 한글에는 쓰지 말 것 — uppercase 가 아무 효과 없이 자간만 벌어져 읽기 나빠진다.
+   */
   .eyebrow {
     font-family: var(--font-mono);
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-dim);
+  }
+
+  /*
+   * 한글 섹션 라벨. 제목 위에 붙는 작은 설명 라벨.
+   * CardHeader 제목이 15px 이므로 그보다 작게 유지해야 라벨-제목 위계가 남는다.
+   */
+  .section-label {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
   }
 }
 @keyframes draft-champion-reveal {

@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <>
       <div className="mb-8">
-        <p className="eyebrow mb-2">내전하냥</p>
+        <p className="section-label mb-2">내전하냥</p>
         <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">
           그룹을 만들고 관리하려면 로그인이 필요합니다. 참가자는 초대

@@ -20,6 +20,7 @@ export function TeamBoard({
     <Card className="min-w-0">
       <CardHeader
         eyebrow={side === "BLUE" ? "TEAM A" : "TEAM B"}
+        mono
         title={team?.teamName ?? `${side} 팀`}
         action={
           <div className="flex items-center gap-2">

@@ -17,7 +17,7 @@ export default function TierPage() {
       <NavBar />
       <main className="mx-auto max-w-3xl px-6 py-12">
         <div className="mb-10">
-          <p className="eyebrow mb-3">티어</p>
+          <p className="section-label mb-3">티어</p>
           <h1 className="text-2xl font-semibold tracking-tight">
             솔랭 티어는 시작점일 뿐입니다
           </h1>
@@ -32,9 +32,9 @@ export default function TierPage() {
         <Card>
           <CardHeader eyebrow="환산표" title="솔랭 티어 → 내전 시작 점수" />
           <div className="flex items-center gap-4 border-b border-line px-5 py-2.5">
-            <span className="eyebrow flex-1">솔랭</span>
-            <span className="eyebrow w-24 text-right">환산 점수</span>
-            <span className="eyebrow w-24 text-right">내전 시작</span>
+            <span className="section-label flex-1">솔랭</span>
+            <span className="section-label w-24 text-right">환산 점수</span>
+            <span className="section-label w-24 text-right">내전 시작</span>
           </div>
           <ul>
             {CONVERSION.map((row) => (

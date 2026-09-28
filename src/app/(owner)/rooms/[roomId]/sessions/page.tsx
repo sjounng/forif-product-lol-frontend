@@ -220,7 +220,7 @@ export default function SessionsPage() {
     <main className="px-8 py-8">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow mb-2">세션</p>
+          <p className="section-label mb-2">세션</p>
           <h1 className="text-xl font-semibold tracking-tight">세션 목록</h1>
           <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted">
             두 팀의 5인 로스터와 기본 라인은 세션 확정 후 고정됩니다. 한 그룹에서는
@@ -243,7 +243,7 @@ export default function SessionsPage() {
 
       {showCreate && (
         <Card className="mb-8">
-          <CardHeader eyebrow="session-v1" title="새 세션 제안" />
+          <CardHeader eyebrow="session-v1" mono title="새 세션 제안" />
           <form onSubmit={handleCreate} className="space-y-6 px-5 py-5">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <label className="text-sm text-muted">
@@ -398,7 +398,7 @@ export default function SessionsPage() {
                 {!session.ratingEnabled && <Badge tone="quiet">점수 미반영</Badge>}
                 <div className="text-right">
                   <p className="tabular text-sm">{session.gameCount}</p>
-                  <p className="eyebrow mt-0.5">매치</p>
+                  <p className="section-label mt-0.5">매치</p>
                 </div>
               </Link>
             </li>

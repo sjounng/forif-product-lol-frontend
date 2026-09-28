@@ -85,9 +85,9 @@ export default function RoomSettingsPage() {
   }
 
   return (
-    <main className="max-w-2xl px-8 py-8">
+    <main className="px-8 py-8">
       <div className="mb-8">
-        <p className="eyebrow mb-2">설정</p>
+        <p className="section-label mb-2">설정</p>
         <h1 className="text-xl font-semibold tracking-tight">그룹 설정</h1>
       </div>
 
@@ -99,9 +99,14 @@ export default function RoomSettingsPage() {
           <CardHeader eyebrow="참가자에게 공유" title="초대 링크" />
           <div className="space-y-4 px-5 py-5">
             <Field label="링크" hint="코드를 재발급하면 이전 링크의 신규 입장이 차단됩니다.">
+              {/* Input 이 w-full 이라 Button 을 shrink-0 로 막지 않으면 글자 폭 아래로 찌그러져 세로로 쌓인다 */}
               <div className="flex gap-2">
-                <Input readOnly value={entryUrl} className="tabular text-[13px]" />
-                <Button type="button" onClick={() => void navigator.clipboard.writeText(entryUrl)}>
+                <Input readOnly value={entryUrl} className="tabular min-w-0 text-[13px]" />
+                <Button
+                  type="button"
+                  className="shrink-0 whitespace-nowrap"
+                  onClick={() => void navigator.clipboard.writeText(entryUrl)}
+                >
                   복사
                 </Button>
               </div>
@@ -115,21 +120,28 @@ export default function RoomSettingsPage() {
         {canManage && <Card>
           <CardHeader eyebrow="그룹 정보" title="이름·설명·입장 정책" />
           <form className="space-y-4 px-5 py-5" onSubmit={save}>
-            <Field label="그룹 이름">
-              <Input name="name" defaultValue={room.name} maxLength={100} required />
-            </Field>
-            <Field label="설명">
-              <Input name="description" defaultValue={room.description ?? ""} maxLength={500} />
-            </Field>
-            <Checkbox name="guestAdmissionEnabled" defaultChecked={room.guestAdmissionEnabled}>
-              신규 게스트 입장 허용
-            </Checkbox>
-            <Field
-              label="새 입장 암호"
-              hint={room.entryPasswordProtected ? "현재 암호를 바꾸려면 새 암호를 입력하세요." : "비워 두면 암호를 사용하지 않습니다."}
-            >
-              <Input name="entryPassword" type="password" minLength={4} maxLength={72} />
-            </Field>
+            {/* 페이지가 전체 폭이 되면서 입력창이 화면 끝까지 늘어지므로 2열로 배치한다 */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="그룹 이름">
+                <Input name="name" defaultValue={room.name} maxLength={100} required />
+              </Field>
+              <Field label="설명">
+                <Input name="description" defaultValue={room.description ?? ""} maxLength={500} />
+              </Field>
+              <Field
+                label="새 입장 암호"
+                hint={room.entryPasswordProtected ? "현재 암호를 바꾸려면 새 암호를 입력하세요." : "비워 두면 암호를 사용하지 않습니다."}
+              >
+                <Input name="entryPassword" type="password" minLength={4} maxLength={72} />
+              </Field>
+              <Checkbox
+                name="guestAdmissionEnabled"
+                defaultChecked={room.guestAdmissionEnabled}
+                className="self-center"
+              >
+                신규 게스트 입장 허용
+              </Checkbox>
+            </div>
             <div className="flex flex-wrap gap-2">
               <Button type="submit" variant="primary" size="sm">변경 사항 저장</Button>
               {room.entryPasswordProtected && (

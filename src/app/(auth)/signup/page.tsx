@@ -40,7 +40,7 @@ export default function SignupPage() {
   return (
     <>
       <div className="mb-8">
-        <p className="eyebrow mb-2">내전하냥</p>
+        <p className="section-label mb-2">내전하냥</p>
         <h1 className="text-2xl font-semibold tracking-tight">회원가입</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">
           그룹을 만들고 팀장으로 활동할 계정을 만듭니다.

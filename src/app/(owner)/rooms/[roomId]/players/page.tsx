@@ -221,7 +221,7 @@ export default function PlayersPage() {
   return (
     <main className="px-8 py-8">
       <div className="mb-8">
-        <p className="eyebrow mb-2">참가자</p>
+        <p className="section-label mb-2">참가자</p>
         <h1 className="text-xl font-semibold tracking-tight">
           회원 {members.length}명 · Riot ID {riotPlayers.filter((player) => player.memberUserId === null).length}명
           {canManage ? ` · 게스트 ${guests.length}명` : ""}

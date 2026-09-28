@@ -394,7 +394,7 @@ export function DraftExperience({ draftId }: { draftId: string }) {
           active={currentStep?.side === "BLUE"}
         />
         <section className="flex flex-col items-center justify-center gap-1 border-x border-line bg-raised">
-          <small className="eyebrow">{draft.session.name ?? "내전 세션"}</small>
+          <small className="section-label">{draft.session.name ?? "내전 세션"}</small>
           <strong className="text-sm tracking-[0.12em]">{STATUS_LABEL[draft.status]}</strong>
           <span className="tabular text-[9px] text-muted">
             {draft.session.gameNo}번째 매치 · Draft #{draft.draftId}

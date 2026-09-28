@@ -114,7 +114,7 @@ export default function ChampionAnalyticsPage() {
       <NavBar />
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
-          <p className="eyebrow mb-2">전적 통계</p>
+          <p className="section-label mb-2">전적 통계</p>
           <h1 className="text-xl font-semibold tracking-tight">챔피언 분석</h1>
           <p className="mt-3 text-base text-muted">
             서비스의 모든 완료 내전과 입력된 KDA를 합산한 공용 통계입니다.

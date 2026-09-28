@@ -321,7 +321,7 @@ export default function SessionDetailPage() {
         <div>
           <Link
             href={`/rooms/${roomId}/sessions`}
-            className="eyebrow hover:text-muted"
+            className="section-label hover:text-text"
           >
             ← 세션 목록
           </Link>
@@ -411,18 +411,18 @@ export default function SessionDetailPage() {
           <CardHeader eyebrow="규칙" title="세션 설정" />
           <dl className="space-y-4 px-5 py-5 text-sm">
             <div>
-              <dt className="eyebrow mb-1">경기 방식</dt>
+              <dt className="section-label mb-1">경기 방식</dt>
               <dd>{MATCH_FORMAT_LABEL[session.matchFormat]}</dd>
             </div>
             <div>
-              <dt className="eyebrow mb-1">피어리스</dt>
+              <dt className="section-label mb-1">피어리스</dt>
               <dd>{FEARLESS_LABEL[session.fearlessMode]}</dd>
               <p className="mt-1 text-xs text-dim">
                 {FEARLESS_DESCRIPTION[session.fearlessMode]}
               </p>
             </div>
             <div>
-              <dt className="eyebrow mb-1">완료 매치</dt>
+              <dt className="section-label mb-1">완료 매치</dt>
               <dd className="tabular">{session.gameCount}</dd>
             </div>
           </dl>
@@ -448,6 +448,7 @@ export default function SessionDetailPage() {
       <Card className="mb-6">
         <CardHeader
           eyebrow="match-v1"
+          mono
           title="경기 전적"
           action={
             <div className="flex flex-wrap justify-end gap-2">
@@ -784,7 +785,7 @@ export default function SessionDetailPage() {
 
       {session.status === "CANCELLED" && session.rejectionReason && (
         <Card className="mb-6 px-5 py-4">
-          <p className="eyebrow mb-1">거절 사유</p>
+          <p className="section-label mb-1">거절 사유</p>
           <p className="text-sm text-muted">{session.rejectionReason}</p>
         </Card>
       )}

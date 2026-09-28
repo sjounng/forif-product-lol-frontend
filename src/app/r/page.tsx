@@ -27,7 +27,7 @@ export default function JoinPage() {
       <main className="flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-sm">
           <div className="mb-8">
-            <p className="eyebrow mb-2">참가</p>
+            <p className="section-label mb-2">참가</p>
             <h1 className="text-2xl font-semibold tracking-tight">
               그룹 코드로 입장
             </h1>

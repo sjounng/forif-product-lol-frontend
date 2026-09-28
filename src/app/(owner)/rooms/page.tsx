@@ -79,7 +79,7 @@ export default function RoomsPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
       <div className="mb-8 flex items-end justify-between gap-4">
-        <div><p className="eyebrow mb-2">그룹</p><h1 className="text-xl font-semibold">내전 그룹</h1></div>
+        <div><p className="section-label mb-2">그룹</p><h1 className="text-xl font-semibold">내전 그룹</h1></div>
         {isLoggedIn && <Button variant="primary" onClick={() => setCreating((value) => !value)}>{creating ? "닫기" : "그룹 만들기"}</Button>}
       </div>
 

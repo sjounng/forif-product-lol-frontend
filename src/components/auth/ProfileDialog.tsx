@@ -70,7 +70,7 @@ export function ProfileDialog({ open, onClose }: { open: boolean; onClose(): voi
       >
         <header className="flex items-center justify-between border-b border-line px-5 py-4">
           <div>
-            <p className="eyebrow">계정</p>
+            <p className="section-label">계정</p>
             <h2 className="mt-1 text-lg font-semibold">회원정보</h2>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose} aria-label="닫기">닫기</Button>
