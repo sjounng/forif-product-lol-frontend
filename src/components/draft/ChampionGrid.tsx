@@ -53,7 +53,7 @@ export function ChampionGrid({
               champion={champion}
             />
             {selected && (
-              <span className="absolute right-1 top-1 z-10 bg-gold px-1.5 py-0.5 text-[7px] font-bold text-bg">
+              <span className="absolute right-1 top-1 z-10 bg-gold px-1.5 py-0.5 text-[10px] font-bold text-bg">
                 PICK
               </span>
             )}

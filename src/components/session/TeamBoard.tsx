@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { LaneTag } from "@/components/ui/LaneTag";
 import type { SessionTeam, Side } from "@/types";
@@ -19,24 +19,18 @@ export function TeamBoard({
   return (
     <Card className="min-w-0">
       <CardHeader
-        eyebrow={side === "BLUE" ? "TEAM A" : "TEAM B"}
-        mono
         title={team?.teamName ?? `${side} 팀`}
         action={
-          <div className="flex items-center gap-2">
+          // 버튼 유무와 관계없이 두 팀 헤더 높이를 같게 둔다 (버튼 높이 h-9 에 맞춤)
+          <div className="flex h-9 items-center gap-2">
             {canRename && (
-              <button
-                type="button"
-                disabled={saving}
-                onClick={onRename}
-                className="text-[10px] text-muted underline-offset-4 hover:text-text hover:underline disabled:opacity-40"
-              >
+              <Button variant="ghost" size="sm" disabled={saving} onClick={onRename}>
                 팀명 변경
-              </button>
+              </Button>
             )}
-            <Badge tone="quiet">
+            <span className="whitespace-nowrap text-xs text-dim">
               팀장 {team?.captain.displayName ?? "—"}
-            </Badge>
+            </span>
           </div>
         }
       />
@@ -52,7 +46,9 @@ export function TeamBoard({
             <span className="min-w-0 flex-1 truncate text-sm">
               {member.displayName}
             </span>
-            <Badge tone="quiet">{participantTypeLabel(member.participantType)}</Badge>
+            {member.participantType !== "PLAYER" && (
+              <span className="text-xs text-dim">{participantTypeLabel(member.participantType)}</span>
+            )}
           </li>
         ))}
       </ul>
@@ -61,7 +57,5 @@ export function TeamBoard({
 }
 
 function participantTypeLabel(type: SessionTeam["members"][number]["participantType"]) {
-  if (type === "MEMBER") return "회원";
-  if (type === "GUEST") return "게스트";
-  return "Riot ID";
+  return type === "MEMBER" ? "회원" : "게스트";
 }

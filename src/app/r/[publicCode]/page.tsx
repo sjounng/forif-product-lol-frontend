@@ -100,7 +100,7 @@ export default function GuestEntryPage({
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center text-sm text-muted">
-        그룹을 확인하는 중…
+        불러오는 중…
       </div>
     );
   }
@@ -117,14 +117,9 @@ export default function GuestEntryPage({
     return (
       <div className="flex min-h-dvh items-center justify-center px-6 py-12">
         <Card className="w-full max-w-md px-6 py-7">
-          <p className="eyebrow mb-2">{entry.room.publicCode}</p>
-          <h1 className="text-xl font-semibold">{entry.room.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{entry.room.name}</h1>
           <p className="mt-3 text-sm">
             <span className="text-gold">{entry.guest.nickname}</span> 님으로 입장했습니다.
-          </p>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted">
-            게스트는 그룹과 진행 중인 밴픽을 실시간으로 관전할 수 있습니다.
-            조작 권한은 세션의 BLUE/RED 팀장에게만 있습니다.
           </p>
           <Button variant="danger" className="mt-5 w-full" onClick={() => void leave()}>그룹에서 퇴장</Button>
         </Card>
@@ -136,13 +131,12 @@ export default function GuestEntryPage({
     <div className="flex min-h-dvh items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8">
-          <p className="eyebrow mb-2">{publicCode}</p>
           <h1 className="text-2xl font-semibold tracking-tight">
             {room?.name ?? "그룹에 들어가기"}
           </h1>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted">
-            {room?.description ?? "계정 없이 게스트 관전자로 참여합니다."}
-          </p>
+          {room?.description && (
+            <p className="mt-2 text-[13px] leading-relaxed text-muted">{room.description}</p>
+          )}
         </div>
 
         {!room?.guestAdmissionEnabled ? (
@@ -167,7 +161,7 @@ export default function GuestEntryPage({
                 />
               </Field>
             )}
-            <Field label="표시 이름" hint="그룹과 관전 화면에 보일 이름입니다.">
+            <Field label="표시 이름">
               <Input name="nickname" maxLength={50} required />
             </Field>
             {error && <p className="text-sm text-loss">{error}</p>}

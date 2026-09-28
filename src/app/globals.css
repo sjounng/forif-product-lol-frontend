@@ -104,7 +104,7 @@
 @layer components {
   /*
    * 영문 기계 라벨 전용. 대문자 모노 + 넓은 자간 = 계기판 눈금 톤.
-   * LOCKED / MATCH 3 / TEAM A / session-v1 / 입장 코드처럼 원래 대문자로 읽히는 것에만 쓴다.
+   * 밴픽 화면의 MATCH 3 처럼 원래 대문자로 읽히는 것에만 쓴다.
    * 한글에는 쓰지 말 것 — uppercase 가 아무 효과 없이 자간만 벌어져 읽기 나빠진다.
    */
   .eyebrow {

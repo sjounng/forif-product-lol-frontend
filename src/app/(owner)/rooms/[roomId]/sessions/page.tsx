@@ -7,11 +7,13 @@ import { useRoom } from "@/components/group/RoomShell";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusTag, SESSION_STATUS_TONE } from "@/components/ui/StatusTag";
 import { Checkbox } from "@/components/ui/Checkbox";
-import { Input } from "@/components/ui/Field";
+import { Field, Input } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { useAuth } from "@/hooks/useAuth";
-import { FEARLESS_LABEL, LANES, LANE_LABEL_KO } from "@/lib/constants";
+import { FEARLESS_LABEL, LANES, LANE_LABEL_KO, MATCH_FORMAT_LABEL, SESSION_STATUS_LABEL } from "@/lib/constants";
 import { LaneTag } from "@/components/ui/LaneTag";
 import { fetchGuests, fetchRoomMembers } from "@/lib/api/rooms";
 import { fetchPlayers } from "@/lib/api/players";
@@ -29,24 +31,10 @@ import type {
   Player,
   RoomMember,
   ScrimSession,
-  SessionStatus,
   Side,
 } from "@/types";
 
-const STATUS_LABEL: Record<SessionStatus, string> = {
-  PREPARING: "준비 중",
-  PROPOSED: "수락 대기",
-  CONFIRMED: "확정",
-  IN_PROGRESS: "진행 중",
-  FINISHED: "종료",
-  CANCELLED: "취소됨",
-};
 
-const MATCH_FORMAT_LABEL: Record<MatchFormat, string> = {
-  BEST_OF_3: "3판 2선승",
-  BEST_OF_5: "5판 3선승",
-  UNLIMITED: "제한 없음",
-};
 
 type RosterSelections = Record<Side, Record<Lane, string>>;
 
@@ -218,76 +206,62 @@ export default function SessionsPage() {
 
   return (
     <main className="px-8 py-8">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="section-label mb-2">세션</p>
-          <h1 className="text-xl font-semibold tracking-tight">세션 목록</h1>
-          <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted">
-            두 팀의 5인 로스터와 기본 라인은 세션 확정 후 고정됩니다. 한 그룹에서는
-            준비하거나 진행 중인 세션을 하나만 운영할 수 있습니다.
-          </p>
-        </div>
-        {user && (
-          <Button
-            variant="primary"
-            size="sm"
-            disabled={Boolean(activeSession)}
-            onClick={() => void openCreate()}
-          >
-            {activeSession ? "활성 세션 있음" : "세션 제안"}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title="세션"
+        action={
+          user && (
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={Boolean(activeSession)}
+              onClick={() => void openCreate()}
+            >
+              {activeSession ? "활성 세션 있음" : "세션 제안"}
+            </Button>
+          )
+        }
+      />
 
-      {error && <p className="mb-5 text-sm text-loss">{error}</p>}
+      {error && <p role="alert" className="mb-5 text-sm text-loss">{error}</p>}
 
       {showCreate && (
         <Card className="mb-8">
-          <CardHeader eyebrow="session-v1" mono title="새 세션 제안" />
+          <CardHeader title="새 세션 제안" />
           <form onSubmit={handleCreate} className="space-y-6 px-5 py-5">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <label className="text-sm text-muted">
-                세션 이름
+              <Field label="세션 이름">
                 <Input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   maxLength={100}
                   placeholder="금요일 정기 내전"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                경기 방식
+              </Field>
+              <Field label="경기 방식">
                 <Select
                   value={matchFormat}
                   onChange={(value) => setMatchFormat(value as MatchFormat)}
                   options={Object.entries(MATCH_FORMAT_LABEL).map(([value, label]) => ({ value, label }))}
                   ariaLabel="경기 방식"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                피어리스 방식
+              </Field>
+              <Field label="피어리스 방식">
                 <Select
                   value={fearlessMode}
                   onChange={(value) => setFearlessMode(value as FearlessMode)}
                   options={Object.entries(FEARLESS_LABEL).map(([value, label]) => ({ value, label }))}
                   ariaLabel="피어리스 방식"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                내 진영
+              </Field>
+              <Field label="내 진영">
                 <Select
                   value={creatorSide}
                   onChange={(value) => setCreatorSide(value as Side)}
                   options={[{ value: "BLUE", label: "BLUE" }, { value: "RED", label: "RED" }]}
                   ariaLabel="내 진영"
-                  className="mt-2"
                 />
-              </label>
-              <label className="text-sm text-muted">
-                상대 팀장
+              </Field>
+              <Field label="상대 팀장">
                 <Select
                   value={opponentCaptainUserId}
                   onChange={setOpponentCaptainUserId}
@@ -304,16 +278,15 @@ export default function SessionsPage() {
                   ariaLabel="상대 팀장"
                   searchable
                   searchPlaceholder="이름 또는 Riot ID 검색"
-                  className="mt-2"
                 />
-              </label>
+              </Field>
             </div>
 
             <Checkbox
                 checked={ratingEnabled}
                 onChange={(event) => setRatingEnabled(event.target.checked)}
             >
-              결과를 그룹 점수에 반영
+              점수 반영
             </Checkbox>
 
             <div className="grid gap-6 lg:grid-cols-2">
@@ -365,7 +338,7 @@ export default function SessionsPage() {
       )}
 
       {loading ? (
-        <p className="py-12 text-center text-sm text-muted">세션을 불러오는 중…</p>
+        <p className="text-sm text-muted">불러오는 중…</p>
       ) : sessions.length === 0 ? (
         <Card className="px-5 py-12 text-center">
           <p className="text-sm text-muted">아직 생성된 세션이 없습니다.</p>
@@ -383,23 +356,18 @@ export default function SessionsPage() {
                     <span className="truncate text-[15px] font-medium">
                       {session.name ?? "이름 없는 세션"}
                     </span>
-                    <Badge tone={session.status === "IN_PROGRESS" ? "gain" : "neutral"}>
-                      {STATUS_LABEL[session.status]}
-                    </Badge>
+                    <StatusTag tone={SESSION_STATUS_TONE[session.status]}>
+                      {SESSION_STATUS_LABEL[session.status]}
+                    </StatusTag>
                   </div>
                   <p className="mt-1 text-xs text-dim">
-                    {new Date(session.createdAt).toLocaleString("ko-KR")}
+                    {new Date(session.createdAt).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
                   </p>
                 </div>
-                <Badge tone={session.fearlessMode === "NONE" ? "neutral" : "gold"}>
-                  {FEARLESS_LABEL[session.fearlessMode]}
-                </Badge>
+                <span className="text-xs text-muted">{FEARLESS_LABEL[session.fearlessMode]}</span>
                 <span className="text-xs text-muted">{MATCH_FORMAT_LABEL[session.matchFormat]}</span>
-                {!session.ratingEnabled && <Badge tone="quiet">점수 미반영</Badge>}
-                <div className="text-right">
-                  <p className="tabular text-sm">{session.gameCount}</p>
-                  <p className="section-label mt-0.5">매치</p>
-                </div>
+                {!session.ratingEnabled && <span className="text-xs text-dim">점수 미반영</span>}
+                <span className="tabular text-sm">{session.gameCount}경기</span>
               </Link>
             </li>
           ))}

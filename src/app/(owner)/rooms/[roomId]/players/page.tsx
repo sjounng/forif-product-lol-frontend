@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRoom } from "@/components/group/RoomShell";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Field, Input } from "@/components/ui/Field";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Dialog, TextPromptDialog } from "@/components/ui/Dialog";
-import { addPlayer, fetchPlayers, removePlayer, renamePlayer, syncPlayers } from "@/lib/api/players";
+import { addPlayer, fetchPlayers, removePlayer, renamePlayer } from "@/lib/api/players";
 import {
   changeRoomMemberRole,
   fetchGuests,
@@ -44,9 +44,7 @@ export default function PlayersPage() {
   const [tagLine, setTagLine] = useState("");
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [syncNotice, setSyncNotice] = useState<string | null>(null);
   const [participantQuery, setParticipantQuery] = useState("");
   const [dialog, setDialog] = useState<ParticipantDialog | null>(null);
   const [dialogValue, setDialogValue] = useState("");
@@ -166,21 +164,6 @@ export default function PlayersPage() {
     }
   }
 
-  async function handleSyncPlayers() {
-    try {
-      setSyncing(true);
-      setError(null);
-      setSyncNotice(null);
-      const refreshed = await syncPlayers(room.id);
-      await load();
-      setSyncNotice(`${refreshed.length}명의 솔로랭크 정보를 갱신했습니다.`);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "솔로랭크 정보를 갱신하지 못했습니다.");
-    } finally {
-      setSyncing(false);
-    }
-  }
-
   async function confirmDialog() {
     if (!dialog) return;
     const value = dialogValue.trim();
@@ -220,26 +203,20 @@ export default function PlayersPage() {
 
   return (
     <main className="px-8 py-8">
-      <div className="mb-8">
-        <p className="section-label mb-2">참가자</p>
-        <h1 className="text-xl font-semibold tracking-tight">
-          회원 {members.length}명 · Riot ID {riotPlayers.filter((player) => player.memberUserId === null).length}명
-          {canManage ? ` · 게스트 ${guests.length}명` : ""}
-        </h1>
-      </div>
+      <PageHeader title="참가자" />
 
       {error && (
         <p role="alert" className="mb-5 text-sm text-loss">
           {error}
         </p>
       )}
-      <label className="mb-5 flex max-w-xl items-center gap-3 rounded-lg border border-line bg-surface px-4">
+      <label className="mb-5 flex max-w-xl items-center gap-3 rounded-md border border-line bg-surface px-4">
         <span aria-hidden="true" className="text-muted">⌕</span>
         <span className="sr-only">참가자 검색</span>
         <Input
           value={participantQuery}
           onChange={(event) => setParticipantQuery(event.target.value)}
-          placeholder="이름 또는 Riot ID로 참가자 검색"
+          placeholder="검색"
           className="h-11 border-0 bg-transparent px-0 focus:border-0"
         />
         {participantQuery && (
@@ -252,24 +229,13 @@ export default function PlayersPage() {
           </button>
         )}
       </label>
-      {canManage && riotPlayers.length > 0 && (
-        <div className="mb-5 flex flex-wrap items-center gap-3">
-          <Button size="sm" onClick={() => void handleSyncPlayers()} disabled={syncing}>
-            {syncing ? "Riot 동기화 중…" : "솔로랭크 새로고침"}
-          </Button>
-          {syncNotice && <span className="text-sm text-gain">{syncNotice}</span>}
-        </div>
-      )}
       {loading ? (
-        <p className="text-sm text-muted">참가자를 불러오는 중…</p>
+        <p className="text-sm text-muted">불러오는 중…</p>
       ) : (
         <div className="space-y-6">
           {canManage && (
             <Card>
-              <CardHeader
-                eyebrow="비회원 바로 추가"
-                title="Riot ID로 참가자 등록"
-              />
+              <CardHeader title="Riot ID 추가" />
               <form
                 onSubmit={handleAddPlayer}
                 className="grid items-end gap-4 px-5 py-5 md:grid-cols-[minmax(0,1fr)_minmax(160px,0.45fr)_auto]"
@@ -306,17 +272,13 @@ export default function PlayersPage() {
                   {adding ? "Riot 확인 중…" : "그룹에 추가"}
                 </Button>
               </form>
-              <p className="border-t border-line-soft px-5 py-3 text-xs text-dim">
-                Riot에서 계정 존재 여부를 확인한 뒤 비회원 참가자로 즉시
-                등록합니다. 입력 예: Hide on bush # KR1
-              </p>
             </Card>
           )}
 
           <Card>
-            <CardHeader eyebrow="Riot 계정" title="비회원 참가자" />
+            <CardHeader title={`비회원 참가자 ${riotPlayers.filter((player) => player.memberUserId === null).length}`} />
             {visibleRiotPlayers.length === 0 ? (
-              <p className="px-5 py-8 text-center text-sm text-muted">
+              <p className="px-5 py-10 text-center text-sm text-muted">
                 {normalizedQuery ? "검색된 Riot ID 참가자가 없습니다." : "등록된 Riot ID 참가자가 없습니다."}
               </p>
             ) : (
@@ -335,7 +297,7 @@ export default function PlayersPage() {
                       </p>
                     </div>
                     <LanePreferenceIcons primary={player.primaryLane === "FILL" ? null : player.primaryLane} secondary={player.secondaryLane === "FILL" ? null : player.secondaryLane} />
-                    <Badge tone="gain">{formatRank(player.riotAccount)}</Badge>
+                    <span className="tabular text-xs text-muted">{formatRank(player.riotAccount)}</span>
                     {canManage && <><Button size="sm" onClick={() => openEditDialog({ kind: "editRiot", player })}>수정</Button><Button size="sm" variant="danger" onClick={() => setDialog({ kind: "removeRiot", player })}>삭제</Button></>}
                   </li>
                 ))}
@@ -344,9 +306,9 @@ export default function PlayersPage() {
           </Card>
 
           <Card>
-            <CardHeader eyebrow="로그인 계정" title="회원" />
+            <CardHeader title={`회원 ${members.length}`} />
             {visibleMembers.length === 0 ? (
-              <p className="px-5 py-8 text-center text-sm text-muted">검색된 회원이 없습니다.</p>
+              <p className="px-5 py-10 text-center text-sm text-muted">검색된 회원이 없습니다.</p>
             ) : <ul>
               {visibleMembers.map((member) => (
                 <li
@@ -358,13 +320,9 @@ export default function PlayersPage() {
                     {member.player?.riotAccount && <p className="mt-0.5 text-xs text-dim">{member.player.riotAccount.gameName}#{member.player.riotAccount.tagLine} · {formatRank(member.player.riotAccount)}</p>}
                   </div>
                   {member.player && <LanePreferenceIcons primary={member.player.primaryLane === "FILL" ? null : member.player.primaryLane} secondary={member.player.secondaryLane === "FILL" ? null : member.player.secondaryLane} />}
-                  <Badge
-                    tone={
-                      member.role === "GROUP_OWNER" ? "gold" : "neutral"
-                    }
-                  >
+                  <span className={`text-xs ${member.role === "GROUP_OWNER" ? "text-gold" : "text-muted"}`}>
                     {ROLE_LABEL[member.role]}
-                  </Badge>
+                  </span>
                   {room.myRole === "GROUP_OWNER" &&
                     member.role !== "GROUP_OWNER" && (
                       <Button
@@ -386,9 +344,9 @@ export default function PlayersPage() {
 
           {canManage && (
             <Card>
-              <CardHeader eyebrow="초대 링크 입장" title="게스트" />
+              <CardHeader title={`게스트 ${guests.length}`} />
               {visibleGuests.length === 0 ? (
-                <p className="px-5 py-8 text-center text-sm text-muted">
+                <p className="px-5 py-10 text-center text-sm text-muted">
                   {normalizedQuery ? "검색된 게스트가 없습니다." : "입장한 게스트가 없습니다."}
                 </p>
               ) : (
@@ -401,7 +359,6 @@ export default function PlayersPage() {
                       <span className="min-w-0 flex-1 truncate text-sm">
                         {guest.nickname}
                       </span>
-                      <Badge tone="gain">활성</Badge>
                       <Button size="sm" onClick={() => openEditDialog({ kind: "editGuest", guest })}>
                         이름 변경
                       </Button>

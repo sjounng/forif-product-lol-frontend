@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
 
-type Tone = "neutral" | "gold" | "blue" | "red" | "gain" | "quiet";
+/**
+ * 코드·진영 표기 전용 (공개 코드 LTVJPMX9, BLUE/RED).
+ * 채움 없이 얇은 테두리만 둔 각진 키캡 — 상태·역할 같은 정보에는 쓰지 않는다.
+ * 상태는 StatusTag, 그 외 정보는 그냥 작은 글자로 쓴다.
+ */
+type Tone = "neutral" | "blue" | "red";
 
 const TONE: Record<Tone, string> = {
-  neutral: "border-line bg-raised text-muted",
-  gold: "border-gold/30 bg-gold/10 text-gold",
-  blue: "border-blue/30 bg-blue/10 text-blue",
-  red: "border-red/30 bg-red/10 text-red",
-  gain: "border-gain/30 bg-gain/10 text-gain",
-  quiet: "border-transparent bg-transparent text-dim",
+  neutral: "border-line text-muted",
+  blue: "border-blue/50 text-blue",
+  red: "border-red/50 text-red",
 };
 
 export function Badge({
@@ -20,7 +22,7 @@ export function Badge({
 }) {
   return (
     <span
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[11px] leading-4 ${TONE[tone]}`}
+      className={`inline-flex items-center border px-1.5 font-mono text-[11px] leading-5 tracking-wider ${TONE[tone]}`}
     >
       {children}
     </span>

@@ -30,14 +30,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="mb-8">
-        <p className="section-label mb-2">내전하냥</p>
-        <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted">
-          그룹을 만들고 관리하려면 로그인이 필요합니다. 참가자는 초대
-          링크로 계정 없이 입장할 수 있습니다.
-        </p>
-      </div>
+      <h1 className="mb-8 text-2xl font-semibold tracking-tight">로그인</h1>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <Field label="이메일">
@@ -52,9 +45,8 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-muted">
-        아직 계정이 없나요?{" "}
-        <Link href="/signup" className="text-gold hover:underline">
+      <p className="mt-6 text-center text-[13px]">
+        <Link href="/signup" className="text-muted hover:text-text">
           회원가입
         </Link>
       </p>

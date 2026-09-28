@@ -26,7 +26,7 @@ import {
   type DraftSocketCommand,
 } from "@/lib/api/drafts";
 import { getChampionLanes } from "@/lib/champion-lanes";
-import { LANES, LANE_LABEL } from "@/lib/constants";
+import { FEARLESS_LABEL, LANES, LANE_LABEL } from "@/lib/constants";
 import { LaneIcon } from "@/components/ui/LaneIcon";
 import { LaneTag } from "@/components/ui/LaneTag";
 import type {
@@ -263,8 +263,9 @@ export function DraftExperience({ draftId }: { draftId: string }) {
     [runMutation],
   );
 
-  const currentStep = draft?.steps.find((step) => step.stepNo === draft.currentStep) ?? null;
-  const nextStep = draft?.steps.find((step) => step.stepNo === draft.currentStep + 1) ?? null;
+  const turnOver = !draft || isTurnOver(draft);
+  const currentStep = turnOver ? null : draft.steps.find((step) => step.stepNo === draft.currentStep) ?? null;
+  const nextStep = turnOver ? null : draft.steps.find((step) => step.stepNo === draft.currentStep + 1) ?? null;
   const currentActor = draft && currentStep ? turnActor(draft, currentStep.stepNo) : null;
   const nextActor = draft && nextStep ? turnActor(draft, nextStep.stepNo) : null;
   const defaultPickPlayer =
@@ -352,7 +353,7 @@ export function DraftExperience({ draftId }: { draftId: string }) {
   };
 
   if (loading) {
-    return <DraftScreenMessage title="Draft 상태를 불러오는 중입니다." />;
+    return <DraftScreenMessage title="불러오는 중…" />;
   }
 
   if (!draft) {
@@ -396,9 +397,10 @@ export function DraftExperience({ draftId }: { draftId: string }) {
         <section className="flex flex-col items-center justify-center gap-1 border-x border-line bg-raised">
           <small className="section-label">{draft.session.name ?? "내전 세션"}</small>
           <strong className="text-sm tracking-[0.12em]">{STATUS_LABEL[draft.status]}</strong>
-          <span className="tabular text-[9px] text-muted">
-            {draft.session.gameNo}번째 매치 · Draft #{draft.draftId}
+          <span className="tabular text-[10px] text-muted">
+            {draft.session.gameNo}번째 매치 · {FEARLESS_LABEL[draft.session.fearlessMode]}
           </span>
+          {!socketConnected && <span className="text-[10px] text-dim">연결 중…</span>}
         </section>
         <TeamHeader
           side="RED"
@@ -409,43 +411,45 @@ export function DraftExperience({ draftId }: { draftId: string }) {
         />
       </header>
 
-      <section className="grid h-[76px] shrink-0 grid-cols-[1fr_390px_1fr] overflow-hidden rounded-xl border border-line bg-surface">
-        <Reserve side="BLUE" reserveMs={blueReserveMs} active={currentStep?.side === "BLUE"} />
-        <div className="relative flex flex-col items-center justify-center bg-text text-bg">
-          <span className="tabular text-[8px] tracking-[0.2em] text-dim">
-            {draft.currentStep || 0} / {draft.steps.length}
-          </span>
-          <strong className="mt-0.5 flex max-w-[360px] items-center gap-1 truncate text-xs tracking-[0.08em]">
-            {currentActor?.lane && <LaneIcon lane={currentActor.lane} size={18} />}
-            <span className="truncate">
-              {currentStep
-                ? `${currentActor?.label ?? currentStep.side} · ${currentStep.actionType}`
-                : STATUS_LABEL[draft.status]}
+      {!turnOver && (
+        <section className="grid h-[76px] shrink-0 grid-cols-[1fr_390px_1fr] overflow-hidden rounded-xl border border-line bg-surface">
+          <Reserve side="BLUE" reserveMs={blueReserveMs} active={currentStep?.side === "BLUE"} />
+          <div className="relative flex flex-col items-center justify-center bg-text text-bg">
+            <span className="tabular text-[10px] tracking-[0.2em] text-dim">
+              {draft.currentStep || 0} / {draft.steps.length}
             </span>
-          </strong>
-          {currentStep && (
-            <span className="tabular mt-0.5 text-[10px] font-semibold">
-              {turnRemainingMs > 0
-                ? `남은 시간 ${formatDuration(turnRemainingMs)}`
-                : `예비 시간 ${formatDuration(currentStep.side === "BLUE" ? blueReserveMs : redReserveMs)}`}
-            </span>
-          )}
-          {nextStep && (
-            <span className="mt-0.5 flex max-w-[360px] items-center gap-1 truncate text-[8px] text-dim">
-              다음 · {nextActor?.lane && <LaneIcon lane={nextActor.lane} size={14} />}
-              {nextActor?.label ?? nextStep.side} · {nextStep.actionType}
-            </span>
-          )}
-          {currentStep && (
-            <span
-              className={`absolute inset-x-16 bottom-0 h-0.5 ${
-                currentStep.side === "BLUE" ? "bg-blue" : "bg-red"
-              }`}
-            />
-          )}
-        </div>
-        <Reserve side="RED" reserveMs={redReserveMs} active={currentStep?.side === "RED"} />
-      </section>
+            <strong className="mt-0.5 flex max-w-[360px] items-center gap-1 truncate text-xs tracking-[0.08em]">
+              {currentActor?.lane && <LaneIcon lane={currentActor.lane} size={18} />}
+              <span className="truncate">
+                {currentStep
+                  ? `${currentActor?.label ?? currentStep.side} · ${currentStep.actionType}`
+                  : STATUS_LABEL[draft.status]}
+              </span>
+            </strong>
+            {currentStep && (
+              <span className="tabular mt-0.5 text-[10px] font-semibold">
+                {turnRemainingMs > 0
+                  ? `남은 시간 ${formatDuration(turnRemainingMs)}`
+                  : `예비 시간 ${formatDuration(currentStep.side === "BLUE" ? blueReserveMs : redReserveMs)}`}
+              </span>
+            )}
+            {nextStep && (
+              <span className="mt-0.5 flex max-w-[360px] items-center gap-1 truncate text-[10px] text-dim">
+                다음 · {nextActor?.lane && <LaneIcon lane={nextActor.lane} size={14} />}
+                {nextActor?.label ?? nextStep.side} · {nextStep.actionType}
+              </span>
+            )}
+            {currentStep && (
+              <span
+                className={`absolute inset-x-16 bottom-0 h-0.5 ${
+                  currentStep.side === "BLUE" ? "bg-blue" : "bg-red"
+                }`}
+              />
+            )}
+          </div>
+          <Reserve side="RED" reserveMs={redReserveMs} active={currentStep?.side === "RED"} />
+        </section>
+      )}
 
       {message && (
         <div className="shrink-0 rounded-lg border border-red/40 bg-red/10 px-6 py-2 text-center text-sm text-red">
@@ -526,16 +530,15 @@ export function DraftExperience({ draftId }: { draftId: string }) {
 
               <footer className="flex min-h-[72px] shrink-0 items-center justify-between gap-4 border-t border-line pt-2">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="border border-gold px-2 py-1.5 text-[8px] font-bold text-gold">
+                  <span className="border border-gold px-2 py-1.5 text-[10px] font-bold text-gold">
                     {currentStep?.actionType ?? "LOCK"}
                   </span>
                   <p className="min-w-0">
-                    <small className="block text-[8px] text-dim">현재 선택</small>
                     <strong className="block truncate text-sm">
                       {selectedChampion?.nameKo ?? draft.hover?.champion?.nameKo ?? "선택 없음"}
                     </strong>
                     {draft.hover && !selectedChampion && (
-                      <small className="block text-[8px] text-dim">
+                      <small className="block text-[10px] text-dim">
                         {draft.hover.side} 팀장 hover
                       </small>
                     )}
@@ -599,10 +602,9 @@ export function DraftExperience({ draftId }: { draftId: string }) {
           )}
 
           {draft.status === "COMPLETED" && (
-            <DraftScreenMessage title="양 팀 선수 배정이 확정되었습니다.">
-              <p className="text-base text-muted">세션 화면으로 돌아가 경기를 시작할 수 있습니다.</p>
+            <DraftScreenMessage title="배정 완료">
               <Button variant="primary" onClick={() => router.back()}>
-                세션으로 나가기
+                세션으로
               </Button>
             </DraftScreenMessage>
           )}
@@ -624,16 +626,6 @@ export function DraftExperience({ draftId }: { draftId: string }) {
         />
       </section>
 
-      <footer className="tabular flex h-[38px] shrink-0 items-center justify-between rounded-lg border border-line bg-surface px-6 text-[10px] tracking-[0.08em] text-muted">
-        <span className="flex items-center gap-2">
-          <i className={`size-1.5 rounded-full ${draft.status === "IN_PROGRESS" ? "bg-red" : "bg-gold"}`} />
-          {STATUS_LABEL[draft.status]}
-        </span>
-        <span>
-          {socketConnected ? "REALTIME CONNECTED" : "REALTIME RECONNECTING"} · VIEWER {draft.viewer.role} · VERSION {draft.version}
-        </span>
-        <span>{draft.session.fearlessMode}</span>
-      </footer>
     </main>
   );
 }
@@ -650,7 +642,7 @@ function ReadyPanel({
   return (
     <div className="flex h-full flex-col items-center justify-center gap-5 text-center">
       <span className="eyebrow">MATCH {draft.session.gameNo}</span>
-      <h1 className="text-2xl font-semibold">양 팀장의 READY를 기다립니다.</h1>
+      <h1 className="text-2xl font-semibold">READY 대기</h1>
       <div className="grid w-full max-w-md grid-cols-2 gap-3">
         {(["BLUE", "RED"] as Side[]).map((side) => (
           <div key={side} className="border border-line bg-surface px-4 py-4">
@@ -664,16 +656,14 @@ function ReadyPanel({
           </div>
         ))}
       </div>
-      {draft.viewer.canReady ? (
+      {draft.viewer.canReady && (
         <Button
           disabled={saving}
           onClick={onReady}
           variant="primary"
         >
-          {saving ? "처리 중" : "READY 확인"}
+          {saving ? "처리 중" : "READY"}
         </Button>
-      ) : (
-        <p className="text-xs text-muted">팀장 READY가 모두 완료되면 밴픽이 시작됩니다.</p>
       )}
     </div>
   );
@@ -693,16 +683,12 @@ function AssignmentPanel({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b border-line pb-3">
-        <span className="eyebrow">FINAL ASSIGNMENT</span>
-        <div className="mt-1 flex items-end justify-between gap-4">
-          <h2 className="text-lg font-semibold">선수별 챔피언을 최종 배정하세요.</h2>
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="text-lg font-semibold">선수 배정</h2>
           <span className="tabular text-[10px] text-muted">
             마감 {formatDeadline(draft.assignmentDeadlineAt)}
           </span>
         </div>
-        <p className="mt-1 text-[10px] text-dim">
-          이미 배정된 챔피언을 다른 선수에게 선택하면 두 선수의 챔피언이 교환됩니다.
-        </p>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto py-4">
@@ -850,7 +836,16 @@ function activePickIndices(draft: DraftState, side: Side, picks: PickSlot[]) {
     .filter((index) => index < picks.length);
 }
 
+/**
+ * 배정·완료·중단 이후엔 진행 중인 턴이 없다. 서버의 currentStep 은 마지막 스텝(20)에 머물러 있어서
+ * 그대로 쓰면 끝난 밴픽에서도 타이머·NOW PLAYING·마지막 픽 슬롯 강조가 남는다.
+ */
+function isTurnOver(draft: DraftState) {
+  return draft.status === "ASSIGNING" || draft.status === "COMPLETED" || draft.status === "ABORTED";
+}
+
 function activeTurnSteps(draft: DraftState) {
+  if (isTurnOver(draft)) return [];
   const currentIndex = draft.steps.findIndex(
     (step) => step.stepNo === draft.currentStep,
   );
@@ -940,8 +935,10 @@ function TeamHeader({
         </span>
         <div>
           <strong className="block text-base">{teamName}</strong>
-          <small className={`text-[9px] tracking-[0.2em] ${isBlue ? "text-blue" : "text-red"}`}>
-            {active ? "NOW PLAYING" : `${side} SIDE`} · 팀장 {captainName}
+          <small className={`text-[10px] tracking-[0.2em] ${isBlue ? "text-blue" : "text-red"}`}>
+            {active ? "NOW PLAYING" : `${side} SIDE`}
+            {/* 기본 팀 이름이 "{팀장} 팀" 이라 같은 이름을 두 번 쓰지 않는다 */}
+            {!teamName.includes(captainName) && ` · 팀장 ${captainName}`}
           </small>
         </div>
       </div>
